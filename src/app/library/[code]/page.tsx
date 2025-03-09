@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { eq } from 'drizzle-orm'
+import { getFlagUrl } from '@/lib/utils'
 
 interface FlagDetailPageProps {
   params: {
@@ -34,7 +35,7 @@ export default async function FlagDetailPage({ params }: FlagDetailPageProps) {
           <div className='w-full sm:w-1/2 lg:w-1/3'>
             <div className='aspect-video relative overflow-hidden rounded-lg border'>
               <Image
-                src={flag.imageUrl}
+                src={getFlagUrl(flag.code, 640)}
                 alt={`Flag of ${flag.name}`}
                 fill
                 className='object-cover'

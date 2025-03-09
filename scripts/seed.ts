@@ -2,12 +2,16 @@ import { config } from 'dotenv'
 import { resolve } from 'path'
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
-import { migrate } from 'drizzle-orm/libsql/migrator'
 
 // Load environment variables from .env.local
 config({ path: resolve(process.cwd(), '.env.local') })
 
 import { db, schema } from '../src/lib/db'
+
+// Helper function to get flag URLs
+function getFlagUrl(countryCode: string): string {
+  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`
+}
 
 const flagData = [
   {
@@ -22,7 +26,7 @@ const flagData = [
       'The current design was adopted in 1960 after Hawaii became a state',
     ]),
     difficulty: 1,
-    imageUrl: '/flags/us.svg',
+    imageUrl: getFlagUrl('US'),
   },
   {
     name: 'Japan',
@@ -36,7 +40,7 @@ const flagData = [
       'The design has been used since the 7th century',
     ]),
     difficulty: 1,
-    imageUrl: '/flags/jp.svg',
+    imageUrl: getFlagUrl('JP'),
   },
   {
     name: 'Brazil',
@@ -50,7 +54,7 @@ const flagData = [
       'The blue circle depicts the night sky over Rio de Janeiro on November 15, 1889',
     ]),
     difficulty: 2,
-    imageUrl: '/flags/br.svg',
+    imageUrl: getFlagUrl('BR'),
   },
   {
     name: 'Bhutan',
@@ -64,7 +68,7 @@ const flagData = [
       'The dragon holds jewels in its claws, representing wealth',
     ]),
     difficulty: 4,
-    imageUrl: '/flags/bt.svg',
+    imageUrl: getFlagUrl('BT'),
   },
   {
     name: 'South Africa',
@@ -78,7 +82,7 @@ const flagData = [
       "It's the only national flag with six colors not derived from a coat of arms",
     ]),
     difficulty: 3,
-    imageUrl: '/flags/za.svg',
+    imageUrl: getFlagUrl('ZA'),
   },
   {
     name: 'United Kingdom',
@@ -92,7 +96,7 @@ const flagData = [
       'The current design was adopted in 1801',
     ]),
     difficulty: 1,
-    imageUrl: '/flags/gb.svg',
+    imageUrl: getFlagUrl('GB'),
   },
   {
     name: 'Nepal',
@@ -106,7 +110,7 @@ const flagData = [
       'The sun and moon represent the hope that Nepal will last as long as these celestial bodies',
     ]),
     difficulty: 3,
-    imageUrl: '/flags/np.svg',
+    imageUrl: getFlagUrl('NP'),
   },
   {
     name: 'Kenya',
@@ -121,7 +125,7 @@ const flagData = [
       'The Maasai shield and spears represent the defense of freedom',
     ]),
     difficulty: 3,
-    imageUrl: '/flags/ke.svg',
+    imageUrl: getFlagUrl('KE'),
   },
   {
     name: 'Canada',
@@ -135,7 +139,7 @@ const flagData = [
       'The maple leaf has been a symbol of Canada since the 1700s',
     ]),
     difficulty: 1,
-    imageUrl: '/flags/ca.svg',
+    imageUrl: getFlagUrl('CA'),
   },
   {
     name: 'Switzerland',
@@ -149,7 +153,7 @@ const flagData = [
       'The design was officially adopted in 1889',
     ]),
     difficulty: 1,
-    imageUrl: '/flags/ch.svg',
+    imageUrl: getFlagUrl('CH'),
   },
 ]
 
@@ -172,7 +176,7 @@ async function createTables() {
       languages TEXT,
       fun_facts TEXT,
       difficulty INTEGER DEFAULT 1,
-      image_url TEXT NOT NULL,
+      image_url TEXT,
       created_at INTEGER DEFAULT (unixepoch()),
       updated_at INTEGER DEFAULT (unixepoch())
     );

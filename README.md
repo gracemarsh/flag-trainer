@@ -8,6 +8,7 @@ A web application for learning and memorizing world flags using spaced repetitio
 - **Learning Modes**: Multiple ways to learn flags including quick sessions and spaced repetition
 - **Progress Tracking**: Track your learning progress and see statistics about your performance
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **External Flag API**: Utilizes flagcdn.com for high-quality flag images
 
 ## Tech Stack
 
@@ -16,6 +17,7 @@ A web application for learning and memorizing world flags using spaced repetitio
 - **Database**: SQLite with Drizzle ORM
 - **Authentication**: NextAuth.js (optional)
 - **Package Manager**: pnpm for faster and efficient dependency management
+- **Flag Images**: flagcdn.com API for worldwide flag images
 
 ## Getting Started
 
@@ -71,6 +73,15 @@ A web application for learning and memorizing world flags using spaced repetitio
    ```
 
 8. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Flag Images
+
+This application uses flagcdn.com for flag images with the following format:
+
+- PNG images: `https://flagcdn.com/w320/{country-code}.png`
+- SVG images: `https://flagcdn.com/{country-code}.svg`
+
+Where `{country-code}` is the ISO 3166-1 alpha-2 code (e.g., "us", "gb", "jp").
 
 ## Project Structure
 

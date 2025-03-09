@@ -12,7 +12,7 @@ export const flags = sqliteTable('flags', {
   languages: text('languages'),
   funFacts: text('fun_facts'),
   difficulty: integer('difficulty').default(1),
-  imageUrl: text('image_url').notNull(),
+  imageUrl: text('image_url'),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 })

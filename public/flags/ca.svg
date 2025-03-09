@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
-  <rect width="1000" height="500" fill="#fff"/>
-  <rect width="250" height="500" fill="#f00"/>
-  <rect width="250" height="500" x="750" fill="#f00"/>
-  <path d="M500 140L550 300L650 300L570 380L600 480L500 420L400 480L430 380L350 300L450 300Z" fill="#f00"/>
-</svg> 

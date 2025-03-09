@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import Link from 'next/link'
 import { schema } from '@/lib/db'
 import { InferSelectModel } from 'drizzle-orm'
+import { getFlagUrl } from '@/lib/utils'
 
 type Flag = InferSelectModel<typeof schema.flags>
 
@@ -122,7 +123,7 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
       </CardHeader>
       <CardContent className='space-y-6'>
         <div className='aspect-video relative overflow-hidden rounded-lg border'>
-          <Image src={currentFlag.imageUrl} alt='Flag' fill className='object-cover' />
+          <Image src={getFlagUrl(currentFlag.code, 640)} alt='Flag' fill className='object-cover' />
         </div>
 
         <div>

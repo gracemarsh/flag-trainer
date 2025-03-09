@@ -1,5 +1,4 @@
 import { db } from '@/lib/db'
-import { schema } from '@/lib/db'
 import { sql } from 'drizzle-orm'
 import { QuickLearningSession } from '@/components/quick-learning-session'
 

@@ -1,9 +1,9 @@
 import { db } from '@/lib/db'
-import { schema } from '@/lib/db'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { getFlagUrl } from '@/lib/utils'
 
 export default async function LibraryPage() {
   const flags = await db.query.flags.findMany({
@@ -28,7 +28,7 @@ export default async function LibraryPage() {
             <CardContent className='p-4 pt-0 pb-2 flex-grow'>
               <div className='aspect-video relative overflow-hidden rounded-md border mb-3'>
                 <Image
-                  src={flag.imageUrl}
+                  src={getFlagUrl(flag.code, 320)}
                   alt={`Flag of ${flag.name}`}
                   fill
                   className='object-cover'
