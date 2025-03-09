@@ -45,7 +45,7 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
     return () => {
       // End measure if component unmounts
       if (!sessionLoadTimeRef.current) {
-        sessionLoadTimeRef.current = endMeasure('session-load-time') || 0
+        sessionLoadTimeRef.current = endMeasure('session-load-time') ?? null
       }
     }
   }, [flags])
