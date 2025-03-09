@@ -1,17 +1,30 @@
 import { config } from 'dotenv'
 import { resolve } from 'path'
-import { createClient } from '@libsql/client'
-import { drizzle } from 'drizzle-orm/libsql'
 
 // Load environment variables from .env.local
 config({ path: resolve(process.cwd(), '.env.local') })
 
-import { db, schema } from '../src/lib/db'
+import { createClient } from '@libsql/client'
+import { drizzle } from 'drizzle-orm/libsql'
+import { schema } from '../src/lib/db'
 
 // Helper function to get flag URLs
 function getFlagUrl(countryCode: string): string {
   return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`
 }
+
+// Log the database URL (without auth token) for debugging
+const dbUrl = process.env.DATABASE_URL || 'file:./local.db'
+console.log(`🔌 Connecting to database: ${dbUrl}`)
+
+// Initialize database client
+const client = createClient({
+  url: dbUrl,
+  authToken: process.env.DATABASE_AUTH_TOKEN || '',
+})
+
+// Initialize Drizzle with the schema
+const db = drizzle(client, { schema })
 
 const flagData = [
   {
@@ -157,108 +170,80 @@ const flagData = [
   },
 ]
 
-async function createTables() {
-  const client = createClient({
-    url: process.env.DATABASE_URL || 'file:./local.db',
-    authToken: process.env.DATABASE_AUTH_TOKEN || '',
-  })
-
-  const db = drizzle(client)
-
-  // Create flags table
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS flags (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      code TEXT NOT NULL UNIQUE,
-      continent TEXT NOT NULL,
-      population INTEGER,
-      languages TEXT,
-      fun_facts TEXT,
-      difficulty INTEGER DEFAULT 1,
-      image_url TEXT,
-      created_at INTEGER DEFAULT (unixepoch()),
-      updated_at INTEGER DEFAULT (unixepoch())
-    );
-  `)
-
-  // Create users table
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      name TEXT,
-      email TEXT UNIQUE,
-      email_verified INTEGER,
-      image TEXT,
-      created_at INTEGER DEFAULT (unixepoch())
-    );
-  `)
-
-  // Create user_progress table
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS user_progress (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      flag_id INTEGER NOT NULL,
-      familiarity INTEGER DEFAULT 0,
-      correct_count INTEGER DEFAULT 0,
-      incorrect_count INTEGER DEFAULT 0,
-      last_reviewed INTEGER,
-      next_review_date INTEGER,
-      created_at INTEGER DEFAULT (unixepoch()),
-      updated_at INTEGER DEFAULT (unixepoch()),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (flag_id) REFERENCES flags(id) ON DELETE CASCADE
-    );
-  `)
-
-  // Create learning_sessions table
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS learning_sessions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      started_at INTEGER DEFAULT (unixepoch()),
-      ended_at INTEGER,
-      flags_reviewed INTEGER DEFAULT 0,
-      correct_answers INTEGER DEFAULT 0,
-      incorrect_answers INTEGER DEFAULT 0,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-  `)
-
-  // Create session_flags table
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS session_flags (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      session_id INTEGER NOT NULL,
-      flag_id INTEGER NOT NULL,
-      was_correct INTEGER,
-      reviewed_at INTEGER DEFAULT (unixepoch()),
-      FOREIGN KEY (session_id) REFERENCES learning_sessions(id) ON DELETE CASCADE,
-      FOREIGN KEY (flag_id) REFERENCES flags(id) ON DELETE CASCADE
-    );
-  `)
-
-  console.log('✅ Tables created successfully!')
+// Verify the database connection
+async function verifyConnection() {
+  try {
+    // Try to execute a simple query to check connection
+    await client.execute('SELECT 1')
+    console.log('✅ Database connection successful')
+    return true
+  } catch (error) {
+    console.error('❌ Database connection failed:', error)
+    return false
+  }
 }
 
 async function main() {
-  console.log('🌱 Seeding database with initial data...')
+  console.log('🌱 Starting database seed process...')
+
+  // Verify database connection first
+  const isConnected = await verifyConnection()
+  if (!isConnected) {
+    console.error('❌ Cannot proceed with seeding due to connection issues')
+    process.exit(1)
+  }
 
   try {
-    // Create tables
-    await createTables()
+    console.log('📊 Counting existing flags...')
+    // Check if we already have flags in the database
+    const existingFlagsQuery = await client.execute('SELECT COUNT(*) as count FROM flags')
+    const existingCount = existingFlagsQuery.rows[0].count as number
 
-    // Insert flags
+    if (existingCount > 0) {
+      console.log(`⚠️ Found ${existingCount} existing flags in the database.`)
+      console.log('🗑️ Clearing existing flags to avoid duplicates...')
+      await client.execute('DELETE FROM flags')
+      console.log('✅ Existing flags cleared.')
+    }
+
+    // Insert flags with detailed logging
+    console.log(`🚩 Inserting ${flagData.length} flags...`)
+
     for (const flag of flagData) {
-      await db.insert(schema.flags).values(flag).onConflictDoNothing()
-      console.log(`✅ Added flag: ${flag.name}`)
+      try {
+        await db.insert(schema.flags).values({
+          name: flag.name,
+          code: flag.code,
+          continent: flag.continent,
+          population: flag.population,
+          languages: flag.languages,
+          funFacts: flag.funFacts,
+          difficulty: flag.difficulty,
+          imageUrl: flag.imageUrl,
+        })
+        console.log(`✅ Added flag: ${flag.name} (${flag.code})`)
+      } catch (error) {
+        console.error(`❌ Error adding flag ${flag.name}:`, error)
+      }
+    }
+
+    // Verify the flags were actually inserted
+    const finalCountQuery = await client.execute('SELECT COUNT(*) as count FROM flags')
+    const finalCount = finalCountQuery.rows[0].count as number
+
+    if (finalCount === flagData.length) {
+      console.log(`✅ All ${finalCount} flags inserted successfully!`)
+    } else {
+      console.warn(`⚠️ Only ${finalCount} out of ${flagData.length} flags were inserted.`)
     }
 
     console.log('✅ Seed completed successfully!')
   } catch (error) {
     console.error('❌ Error seeding database:', error)
     process.exit(1)
+  } finally {
+    // Explicitly close the connection
+    await client.close()
   }
 }
 
