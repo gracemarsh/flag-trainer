@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +12,7 @@ import { schema } from '@/lib/db'
 import { InferSelectModel } from 'drizzle-orm'
 import { getFlagUrl } from '@/lib/utils'
 import { trackSessionStart, trackSessionComplete, trackAnswer } from '@/lib/analytics'
+import { startMeasure, endMeasure, measureImageLoad } from '@/lib/performance'
 
 type Flag = InferSelectModel<typeof schema.flags>
 
@@ -28,13 +29,34 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
   const [isSessionComplete, setIsSessionComplete] = useState(false)
   const [startTime] = useState(() => Date.now())
   const [answerStartTime, setAnswerStartTime] = useState(() => Date.now())
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
+  const sessionLoadTimeRef = useRef<number | null>(null)
 
-  // Track session start
+  // Track session start and measure session load time
   useEffect(() => {
     if (flags && flags.length > 0) {
+      startMeasure('session-load-time')
       trackSessionStart('quick', flags.length)
     }
+
+    return () => {
+      // End measure if component unmounts
+      if (!sessionLoadTimeRef.current) {
+        sessionLoadTimeRef.current = endMeasure('session-load-time') || 0
+      }
+    }
   }, [flags])
+
+  // Measure image load time when currentFlag changes
+  useEffect(() => {
+    if (currentFlag) {
+      setIsImageLoaded(false)
+      // We don't need to await this, it will resolve when the image loads
+      measureImageLoad(getFlagUrl(currentFlag.code, 640), currentFlag.code).then(() => {
+        setIsImageLoaded(true)
+      })
+    }
+  }, [currentIndex, flags])
 
   // Guard clause for empty flags array
   if (!flags || flags.length === 0) {
@@ -103,6 +125,9 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
   const handleAnswer = () => {
     if (!selectedAnswer) return
 
+    // Start measuring the answer time
+    startMeasure('quiz-answer-time', currentFlag.code)
+
     const isCorrect = selectedAnswer === currentFlag.name
     const responseTimeMs = Date.now() - answerStartTime
 
@@ -113,6 +138,12 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
 
     // Track the answer with analytics
     trackAnswer(currentFlag.code, isCorrect, responseTimeMs)
+
+    // End measuring the answer time
+    const answerTime = endMeasure('quiz-answer-time', currentFlag.code)
+    if (process.env.NODE_ENV !== 'production' && answerTime) {
+      console.log(`Answer processed in ${answerTime.toFixed(2)}ms`)
+    }
   }
 
   const handleNext = () => {
@@ -125,6 +156,11 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
       setIsAnswered(false)
     } else {
       setIsSessionComplete(true)
+
+      // End session load time measurement if not already ended
+      if (!sessionLoadTimeRef.current) {
+        sessionLoadTimeRef.current = endMeasure('session-load-time') || 0
+      }
 
       // Track session completion
       const sessionDurationSeconds = Math.floor((Date.now() - startTime) / 1000)
@@ -190,7 +226,18 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
       </CardHeader>
       <CardContent className='space-y-6'>
         <div className='aspect-video relative overflow-hidden rounded-lg border'>
-          <Image src={getFlagUrl(currentFlag.code, 640)} alt='Flag' fill className='object-cover' />
+          {!isImageLoaded && (
+            <div className='absolute inset-0 flex items-center justify-center bg-muted'>
+              <p className='text-muted-foreground'>Loading flag...</p>
+            </div>
+          )}
+          <Image
+            src={getFlagUrl(currentFlag.code, 640)}
+            alt='Flag'
+            fill
+            className={`object-cover transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setIsImageLoaded(true)}
+          />
         </div>
 
         <div>

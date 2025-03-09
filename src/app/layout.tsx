@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Analytics } from '@/components/analytics'
+import { SpeedInsights } from '@/components/speed-insights'
 
 // Import the reportWebVitals function
 import { reportWebVitals } from './reportWebVitals'
@@ -116,6 +117,7 @@ export default function RootLayout({
             </footer>
           </div>
           <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
