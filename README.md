@@ -11,16 +11,17 @@ A web application for learning and memorizing world flags using spaced repetitio
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 15 with App Router
 - **Styling**: Tailwind CSS with shadcn/ui components
 - **Database**: SQLite with Drizzle ORM
 - **Authentication**: NextAuth.js (optional)
+- **Package Manager**: pnpm for faster and efficient dependency management
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm (recommended over npm)
 
 ### Installation
 
@@ -34,7 +35,7 @@ A web application for learning and memorizing world flags using spaced repetitio
 2. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Set up environment variables:
@@ -48,25 +49,25 @@ A web application for learning and memorizing world flags using spaced repetitio
 4. Generate the database schema:
 
    ```bash
-   npm run db:generate
+   pnpm db:generate
    ```
 
 5. Push the schema to the database:
 
    ```bash
-   npm run db:push
+   pnpm db:push
    ```
 
 6. Seed the database with initial flag data:
 
    ```bash
-   npm run db:seed
+   pnpm db:seed
    ```
 
 7. Start the development server:
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 8. Open [http://localhost:3000](http://localhost:3000) in your browser.

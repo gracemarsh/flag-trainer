@@ -10,10 +10,15 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { sql } from 'drizzle-orm'
 
 export default async function LearnPage() {
   // Get total count of flags
-  const flagCount = await db.select({ count: db.fn.count() }).from(schema.flags)
+  const flagCount = await db
+    .select({
+      count: sql`count(*)`,
+    })
+    .from(schema.flags)
   const totalFlags = flagCount[0].count
 
   return (
