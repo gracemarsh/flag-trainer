@@ -8,12 +8,9 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { eq } from 'drizzle-orm'
 import { getFlagUrl } from '@/lib/utils'
+import { FlagDetailPageProps } from '@/lib/types'
 
-type Props = {
-  params: { code: string }
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: FlagDetailPageProps): Promise<Metadata> {
   const flag = await db.query.flags.findFirst({
     where: eq(schema.flags.code, params.code.toUpperCase()),
   })
@@ -30,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function FlagDetailPage({ params }: Props) {
+export default async function FlagDetailPage({ params }: FlagDetailPageProps) {
   const { code } = params
 
   const flag = await db.query.flags.findFirst({

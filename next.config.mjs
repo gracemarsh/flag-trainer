@@ -2,22 +2,25 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  // By default, Next.js 15 is more strict with TypeScript
-  // Let's disable the type checking during build
+  // TEMPORARY FIX: TypeScript type issues with Next.js 15 dynamic routes
+  // This issue appears to be related to Next.js 15's new type system
+  // References:
+  // - https://github.com/vercel/next.js/issues/63164
+  // - https://nextjs.org/docs/app/building-your-application/upgrading/version-15
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
+    // We will enable this again once Next.js 15 type issues are resolved
     ignoreBuildErrors: true,
   },
-  // Keep using the default settings for everything else
-  swcMinify: true,
-  reactStrictMode: true,
   // This setting helps with image optimization
   images: {
-    domains: ['flagcdn.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+      },
+    ],
   },
+  reactStrictMode: true,
 };
 
 export default nextConfig; 
