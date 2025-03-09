@@ -1,5 +1,18 @@
 .cursor/
 /node_modules
 /.next/
+
+# Ignore all .env files
 .env
+.env.*
+!.env.example
+
+# Database files
 *.db
+*.db-journal
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

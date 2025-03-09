@@ -19,13 +19,52 @@ interface QuickLearningSessionProps {
 }
 
 export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
+  // Always declare hooks at the top level
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [score, setScore] = useState(0)
   const [isSessionComplete, setIsSessionComplete] = useState(false)
 
+  // Guard clause for empty flags array
+  if (!flags || flags.length === 0) {
+    return (
+      <Card className='max-w-2xl mx-auto'>
+        <CardHeader>
+          <CardTitle>No Flags Available</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className='text-center mb-6'>There are no flags available for this session.</p>
+        </CardContent>
+        <CardFooter className='flex justify-center'>
+          <Button asChild>
+            <Link href='/learn'>Back to Learn</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    )
+  }
+
   const currentFlag = flags[currentIndex]
+
+  // Safety check to make sure currentFlag exists
+  if (!currentFlag) {
+    return (
+      <Card className='max-w-2xl mx-auto'>
+        <CardHeader>
+          <CardTitle>Error</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className='text-center mb-6'>There was an error loading the current flag.</p>
+        </CardContent>
+        <CardFooter className='flex justify-center'>
+          <Button asChild>
+            <Link href='/learn'>Back to Learn</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    )
+  }
 
   // Generate 3 random incorrect options
   const generateOptions = () => {

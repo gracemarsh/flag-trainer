@@ -1,0 +1,9 @@
+/*
+This file should be a placeholder PNG image for flag images that cannot be loaded.
+Since we can't create binary files directly through the editor, you have two options:
+
+1. Use the SVG version we've already created at public/placeholder-flag.svg
+2. Create a simple PNG image (~640x480px) with text "Flag image not available" and save it as public/placeholder-flag.png
+
+The SVG placeholder will work fine for most use cases.
+*/ 
