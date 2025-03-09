@@ -47,7 +47,7 @@ export function usePerformance(
 
       // Use requestAnimationFrame to measure after first paint
       requestAnimationFrame(() => {
-        mountTimeRef.current = endMeasure(metricName)
+        mountTimeRef.current = endMeasure(metricName) ?? null
 
         if (debug && process.env.NODE_ENV !== 'production' && mountTimeRef.current) {
           console.log(

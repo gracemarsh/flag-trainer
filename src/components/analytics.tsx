@@ -30,5 +30,10 @@ export function Analytics({
   debug = false,
   mode = 'auto',
 }: AnalyticsProps) {
+  // Skip rendering if disabled
+  if (!enabled) {
+    return null
+  }
+
   return <VercelAnalytics debug={debug} mode={mode} />
 }

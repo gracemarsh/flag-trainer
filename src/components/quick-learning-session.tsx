@@ -32,6 +32,9 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const sessionLoadTimeRef = useRef<number | null>(null)
 
+  // Get current flag (defined early to avoid duplicate calculation)
+  const currentFlag = flags && flags.length > 0 ? flags[currentIndex] : undefined
+
   // Track session start and measure session load time
   useEffect(() => {
     if (flags && flags.length > 0) {
@@ -56,7 +59,7 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
         setIsImageLoaded(true)
       })
     }
-  }, [currentIndex, flags])
+  }, [currentIndex, flags, currentFlag])
 
   // Guard clause for empty flags array
   if (!flags || flags.length === 0) {
@@ -77,8 +80,7 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
     )
   }
 
-  const currentFlag = flags[currentIndex]
-
+  // We already defined currentFlag above, but we keep the safety check
   // Safety check to make sure currentFlag exists
   if (!currentFlag) {
     return (
