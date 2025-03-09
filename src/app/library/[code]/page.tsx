@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { schema } from '@/lib/db'
 import { notFound } from 'next/navigation'
@@ -8,13 +9,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { eq } from 'drizzle-orm'
 import { getFlagUrl } from '@/lib/utils'
 
-interface FlagDetailPageProps {
-  params: {
-    code: string
+type Props = {
+  params: { code: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const flag = await db.query.flags.findFirst({
+    where: eq(schema.flags.code, params.code.toUpperCase()),
+  })
+
+  if (!flag) {
+    return {
+      title: 'Flag Not Found',
+    }
+  }
+
+  return {
+    title: `${flag.name} Flag | Flag Trainer`,
+    description: `Learn about the flag of ${flag.name} and its details.`,
   }
 }
 
-export default async function FlagDetailPage({ params }: FlagDetailPageProps) {
+export default async function FlagDetailPage({ params }: Props) {
   const { code } = params
 
   const flag = await db.query.flags.findFirst({
