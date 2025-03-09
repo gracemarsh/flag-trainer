@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { schema } from '@/lib/db'
 import { InferSelectModel } from 'drizzle-orm'
 import { getFlagUrl } from '@/lib/utils'
+import { trackSessionStart, trackSessionComplete, trackAnswer } from '@/lib/analytics'
 
 type Flag = InferSelectModel<typeof schema.flags>
 
@@ -25,6 +26,15 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
   const [isAnswered, setIsAnswered] = useState(false)
   const [score, setScore] = useState(0)
   const [isSessionComplete, setIsSessionComplete] = useState(false)
+  const [startTime] = useState(() => Date.now())
+  const [answerStartTime, setAnswerStartTime] = useState(() => Date.now())
+
+  // Track session start
+  useEffect(() => {
+    if (flags && flags.length > 0) {
+      trackSessionStart('quick', flags.length)
+    }
+  }, [flags])
 
   // Guard clause for empty flags array
   if (!flags || flags.length === 0) {
@@ -93,19 +103,37 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
   const handleAnswer = () => {
     if (!selectedAnswer) return
 
+    const isCorrect = selectedAnswer === currentFlag.name
+    const responseTimeMs = Date.now() - answerStartTime
+
     setIsAnswered(true)
-    if (selectedAnswer === currentFlag.name) {
+    if (isCorrect) {
       setScore(score + 1)
     }
+
+    // Track the answer with analytics
+    trackAnswer(currentFlag.code, isCorrect, responseTimeMs)
   }
 
   const handleNext = () => {
+    // Reset the answer start time for the next question
+    setAnswerStartTime(Date.now())
+
     if (currentIndex < flags.length - 1) {
       setCurrentIndex(currentIndex + 1)
       setSelectedAnswer(null)
       setIsAnswered(false)
     } else {
       setIsSessionComplete(true)
+
+      // Track session completion
+      const sessionDurationSeconds = Math.floor((Date.now() - startTime) / 1000)
+      trackSessionComplete(
+        'quick',
+        score + (selectedAnswer === currentFlag.name ? 1 : 0),
+        flags.length,
+        sessionDurationSeconds
+      )
     }
   }
 

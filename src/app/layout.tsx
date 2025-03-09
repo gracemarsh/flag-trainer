@@ -5,6 +5,15 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
+import { Analytics } from '@/components/analytics'
+
+// Import the reportWebVitals function
+import { reportWebVitals } from './reportWebVitals'
+
+// Initialize web vitals reporting
+if (typeof window !== 'undefined') {
+  reportWebVitals()
+}
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -106,6 +115,7 @@ export default function RootLayout({
               </div>
             </footer>
           </div>
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
