@@ -1,22 +1,13 @@
 'use client'
 
-import { createClient } from '@libsql/client/web'
-import { drizzle } from 'drizzle-orm/libsql'
-import { schema } from './index'
+/**
+ * This file used to contain client-side database access code,
+ * but we've removed it as we're not using client-side database access.
+ * All database operations should be performed server-side only.
+ *
+ * For data fetching, use server components or Server Actions instead.
+ * @see https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
+ */
 
-// Create a client for the browser
-export function createBrowserClient() {
-  if (!process.env.NEXT_PUBLIC_DATABASE_URL) {
-    throw new Error('NEXT_PUBLIC_DATABASE_URL environment variable is not set')
-  }
-
-  const client = createClient({
-    url: process.env.NEXT_PUBLIC_DATABASE_URL,
-    authToken: process.env.NEXT_PUBLIC_DATABASE_AUTH_TOKEN,
-  })
-
-  return drizzle(client, { schema })
-}
-
-// Create a singleton instance of the database for the browser
-export const browserDb = createBrowserClient()
+// Export a dummy value to prevent import errors in existing code
+export const browserDb = null
