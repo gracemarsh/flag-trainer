@@ -4,6 +4,10 @@
 
 Flag Trainer is a web application designed to help users learn all the flags of the world through interactive gameplay and educational content. The app uses spaced repetition learning techniques to optimize memory retention and provide an engaging experience for users of all ages.
 
+## Architecture
+
+The application uses a static data approach for flag information, with flag data stored directly in the application code rather than in a database. This architecture reduces database requests and improves performance, as flag data is loaded at build time and can be efficiently cached. The database is used exclusively for user session tracking and progress data.
+
 ## Target Audience
 
 - Children and adults interested in geography and vexillology
@@ -27,7 +31,7 @@ Flag Trainer is a web application designed to help users learn all the flags of 
 
 ### Flag Library
 
-- Comprehensive collection of all world flags
+- Comprehensive collection of all world flags stored as static data
 - Interactive display allowing users to browse flags by region/continent
 - Detailed information view when a flag is selected
 - Search functionality to find specific flags

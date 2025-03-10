@@ -15,6 +15,12 @@
 - **Zustand**: Lightweight state management
 - **React Query**: Data fetching, caching, and state management for asynchronous data
 
+### Data Management
+
+- **Static Data**: Flag data stored as static JSON in the application
+- **Local Storage**: Guest mode progress tracking
+- **Database**: User authentication and progress tracking (via API)
+
 ### Form Handling
 
 - **React Hook Form**: Form state management and validation
@@ -47,6 +53,9 @@ components/
     ├── learning/
     ├── competition/
     └── library/
+data/
+├── flags.ts             # Static flag data
+└── constants.ts         # Application constants
 lib/
 ├── hooks/               # Custom React hooks
 ├── utils/               # Utility functions
@@ -56,6 +65,78 @@ public/
 └── flags/               # Flag images
 styles/
 └── globals.css          # Global styles (Tailwind imports)
+```
+
+## Static Data Management
+
+### Flag Data Structure
+
+```typescript
+// data/flags.ts
+export interface Flag {
+  id: number;
+  name: string;
+  code: string;
+  continent: string;
+  population?: number;
+  languages?: string;
+  funFacts?: string;
+  difficulty?: number;
+  imageUrl: string;
+}
+
+export const flags: Flag[] = [
+  {
+    id: 1,
+    name: "United States",
+    code: "US",
+    continent: "North America",
+    population: 331002651,
+    languages: "English",
+    funFacts: JSON.stringify([
+      "The 50 stars represent the 50 states",
+      "The 13 stripes represent the original 13 colonies",
+    ]),
+    difficulty: 1,
+    imageUrl: "/flags/us.svg",
+  },
+  // More flag data...
+];
+```
+
+### Flag Data Utilities
+
+```typescript
+// lib/utils/flags.ts
+import { flags, Flag } from "@/data/flags";
+
+// Get a flag by its country code
+export function getFlagByCode(code: string): Flag | undefined {
+  return flags.find((flag) => flag.code.toUpperCase() === code.toUpperCase());
+}
+
+// Get flags by continent
+export function getFlagsByContinent(continent: string): Flag[] {
+  return flags.filter((flag) => flag.continent === continent);
+}
+
+// Get random set of flags
+export function getRandomFlags(count: number = 10): Flag[] {
+  const shuffled = [...flags].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// Get a set of random flags excluding specific ones
+export function getRandomFlagsExcept(
+  count: number,
+  excludeCodes: string[],
+): Flag[] {
+  const filteredFlags = flags.filter(
+    (flag) => !excludeCodes.includes(flag.code),
+  );
+  const shuffled = [...filteredFlags].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
 ```
 
 ## Component Architecture
@@ -77,8 +158,7 @@ styles/
    - Utilize render props pattern where appropriate
 
 3. **Container/Presentation Pattern**:
-   - Separate data fetching from rendering
-   - Use React Query for data fetching containers
+   - Separate data logic from rendering
    - Keep presentation components pure
 
 ### Key Components
@@ -87,13 +167,18 @@ styles/
 
 ```tsx
 interface FlagCardProps {
-  flag: Flag
-  onClick?: (flag: Flag) => void
-  size?: 'sm' | 'md' | 'lg'
-  showInfo?: boolean
+  flag: Flag;
+  onClick?: (flag: Flag) => void;
+  size?: "sm" | "md" | "lg";
+  showInfo?: boolean;
 }
 
-export function FlagCard({ flag, onClick, size = 'md', showInfo = false }: FlagCardProps) {
+export function FlagCard({
+  flag,
+  onClick,
+  size = "md",
+  showInfo = false,
+}: FlagCardProps) {
   // Component implementation
 }
 ```
@@ -102,11 +187,11 @@ export function FlagCard({ flag, onClick, size = 'md', showInfo = false }: FlagC
 
 ```tsx
 interface QuizInterfaceProps {
-  flag: Flag
-  options: Flag[]
-  onAnswer: (flag: Flag, isCorrect: boolean) => void
-  onNext: () => void
-  showHint?: boolean
+  flag: Flag;
+  options: Flag[];
+  onAnswer: (flag: Flag, isCorrect: boolean) => void;
+  onNext: () => void;
+  showHint?: boolean;
 }
 
 export function QuizInterface({
@@ -127,26 +212,28 @@ export function QuizInterface({
 ```tsx
 // User settings store
 interface SettingsState {
-  darkMode: boolean
-  soundEnabled: boolean
-  preferredDifficulty: 'beginner' | 'intermediate' | 'expert'
-  flagsPerSession: number
-  setDarkMode: (darkMode: boolean) => void
-  setSoundEnabled: (enabled: boolean) => void
-  setPreferredDifficulty: (difficulty: 'beginner' | 'intermediate' | 'expert') => void
-  setFlagsPerSession: (count: number) => void
+  darkMode: boolean;
+  soundEnabled: boolean;
+  preferredDifficulty: "beginner" | "intermediate" | "expert";
+  flagsPerSession: number;
+  setDarkMode: (darkMode: boolean) => void;
+  setSoundEnabled: (enabled: boolean) => void;
+  setPreferredDifficulty: (
+    difficulty: "beginner" | "intermediate" | "expert",
+  ) => void;
+  setFlagsPerSession: (count: number) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   darkMode: false,
   soundEnabled: true,
-  preferredDifficulty: 'beginner',
+  preferredDifficulty: "beginner",
   flagsPerSession: 10,
   setDarkMode: (darkMode) => set({ darkMode }),
   setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
   setPreferredDifficulty: (preferredDifficulty) => set({ preferredDifficulty }),
   setFlagsPerSession: (flagsPerSession) => set({ flagsPerSession }),
-}))
+}));
 
 // Progress tracking store
 interface ProgressState {
@@ -155,36 +242,72 @@ interface ProgressState {
 
 export const useProgressStore = create<ProgressState>((set) => ({
   // Implementation details
-}))
+}));
 ```
 
-### Data Fetching with React Query
+### Static Data Access Hooks
 
 ```tsx
-// Custom hook for fetching flags
-export function useFlags(filters?: FlagFilters) {
-  return useQuery({
-    queryKey: ['flags', filters],
-    queryFn: () => fetchFlags(filters),
-  })
+// Custom hooks for accessing flag data
+export function useFlags(filters?: {
+  continent?: string;
+  difficulty?: number;
+  search?: string;
+}) {
+  // Filter flags from static data based on filters
+  const filteredFlags = useMemo(() => {
+    let result = [...flags];
+
+    if (filters?.continent) {
+      result = result.filter((flag) => flag.continent === filters.continent);
+    }
+
+    if (filters?.difficulty) {
+      result = result.filter((flag) => flag.difficulty === filters.difficulty);
+    }
+
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(
+        (flag) =>
+          flag.name.toLowerCase().includes(searchLower) ||
+          flag.code.toLowerCase().includes(searchLower),
+      );
+    }
+
+    return result;
+  }, [filters]);
+
+  return {
+    data: filteredFlags,
+    isLoading: false,
+    error: null,
+  };
 }
 
 // Custom hook for quiz options
-export function useQuizOptions(difficulty?: string, count = 4) {
-  return useQuery({
-    queryKey: ['quiz-options', difficulty, count],
-    queryFn: () => fetchQuizOptions(difficulty, count),
-  })
+export function useQuizOptions(correctFlag: Flag, count = 4) {
+  // Get random flags for quiz options, always including the correct one
+  const options = useMemo(() => {
+    const otherFlags = getRandomFlagsExcept(count - 1, [correctFlag.code]);
+    return [...otherFlags, correctFlag].sort(() => 0.5 - Math.random());
+  }, [correctFlag, count]);
+
+  return {
+    data: options,
+    isLoading: false,
+    error: null,
+  };
 }
 
-// Custom hook for user progress
+// Custom hook for user progress (still uses API)
 export function useUserProgress() {
   return useQuery({
-    queryKey: ['user-progress'],
+    queryKey: ["user-progress"],
     queryFn: fetchUserProgress,
     // Only fetch if user is logged in
     enabled: !!useAuthStore((state) => state.user),
-  })
+  });
 }
 ```
 

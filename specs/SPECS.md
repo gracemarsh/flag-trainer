@@ -4,6 +4,14 @@
 
 Flag Trainer is a web application designed to help users learn all the flags of the world through interactive gameplay and educational content. The app uses spaced repetition learning techniques to optimize memory retention and provide an engaging experience for users of all ages.
 
+## Architecture
+
+Flag Trainer uses a hybrid data approach:
+
+- **Static Flag Data**: All flag information is stored as static JSON data in the application code, reducing database requests and improving performance
+- **Database for User Data**: Turso (SQLite) is used exclusively for user session tracking and progress data
+- **Client-side Processing**: Flag filtering, quiz generation, and other operations are performed client-side using the static data
+
 ## Core Features
 
 - **Learning Mode**: Flashcard-style gameplay with spaced repetition
@@ -51,6 +59,7 @@ Flag Trainer is a web application designed to help users learn all the flags of 
 | Learning Mode       | Complete      | Complete       | Complete    | Implemented |
 | Flag Library        | Complete      | Complete       | Complete    | Implemented |
 | Continent Learning  | Complete      | Complete       | Complete    | Implemented |
+| Static Flag Data    | Complete      | Not Started    | Not Started | Planning    |
 | Spaced Repetition   | Complete      | Not Started    | Not Started | Planning    |
 | User Authentication | Complete      | Not Started    | Not Started | Planning    |
 | Competition Mode    | Future        | Not Planned    | Not Planned | Future      |

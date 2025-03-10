@@ -2,7 +2,7 @@
 
 ## Overview
 
-Flag Trainer uses Turso, an edge database built on libSQL (a fork of SQLite), to provide a globally distributed, low-latency database solution. The database schema is designed to support the core learning features, user management, and competition functionality while leveraging Turso's edge capabilities.
+Flag Trainer uses Turso, an edge database built on libSQL (a fork of SQLite), to provide a globally distributed, low-latency database solution. The database is used exclusively for user session tracking and progress data, while flag data is stored as static JSON in the application code. This architecture reduces database requests and improves application performance.
 
 ## Database Technology
 
@@ -31,21 +31,19 @@ Drizzle was selected as the ORM solution for the following benefits:
 
 ## Schema Design
 
-The database schema consists of several core tables as detailed in the data models documentation. Here's a visual representation of the relationships:
+The database schema focuses on user-related data. Flag data is now stored as static application data rather than in the database. Here's a visual representation of the relationships:
 
 ```
-┌─────────┐       ┌───────────────┐       ┌─────────┐
-│         │       │               │       │         │
-│  users  │───────│ userProgress  │───────│  flags  │
-│         │       │               │       │         │
-└─────────┘       └───────────────┘       └─────────┘
-     │                                          │
-     │                                          │
-     │                                          │
-     │                  ┌─────────┐             │
-     └──────────────────│ scores  │─────────────┘
-                        └─────────┘
+┌─────────┐       ┌───────────────┐
+│         │       │               │
+│  users  │───────│ userProgress  │
+│         │       │               │
+└─────────┘       └───────────────┘
      │
+     │
+     │                  ┌─────────┐
+     └──────────────────│ scores  │
+                        └─────────┘
      │
      │
      │                  ┌──────────────┐
@@ -64,7 +62,7 @@ The database schema consists of several core tables as detailed in the data mode
 ### Data Validation
 
 - NOT NULL constraints on required fields
-- UNIQUE constraints on fields like email and country code
+- UNIQUE constraints on fields like email
 - DEFAULT values for optional fields
 - CHECK constraints for specific values (e.g., difficulty levels)
 
@@ -78,22 +76,14 @@ Turso/SQLite supports various index types to optimize query performance. We use 
 
    ```sql
    CREATE INDEX user_progress_user_id_idx ON user_progress(user_id);
+   CREATE INDEX user_progress_flag_code_idx ON user_progress(flag_code);
    CREATE INDEX user_progress_next_review_date_idx ON user_progress(next_review_date);
    ```
 
    - For quickly finding all flags a user needs to review
    - For efficiently sorting by next review date
 
-3. **Flag Lookups**:
-
-   ```sql
-   CREATE INDEX flags_continent_idx ON flags(continent);
-   CREATE INDEX flags_difficulty_idx ON flags(difficulty);
-   ```
-
-   - For filtering flags by continent or difficulty level
-
-4. **Leaderboard Queries**:
+3. **Leaderboard Queries**:
    ```sql
    CREATE INDEX scores_score_idx ON scores(score);
    CREATE INDEX scores_difficulty_idx ON scores(difficulty);
@@ -125,19 +115,22 @@ For local development, we use a local SQLite database file:
 
 ```typescript
 // lib/db/index.ts
-import { drizzle } from 'drizzle-orm/libsql'
-import { createClient } from '@libsql/client'
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
 const client = createClient({
   // Use local file for development
   url:
-    process.env.NODE_ENV === 'production'
+    process.env.NODE_ENV === "production"
       ? (process.env.TURSO_DATABASE_URL as string)
-      : 'file:./local.db',
-  authToken: process.env.NODE_ENV === 'production' ? process.env.TURSO_AUTH_TOKEN : undefined,
-})
+      : "file:./local.db",
+  authToken:
+    process.env.NODE_ENV === "production"
+      ? process.env.TURSO_AUTH_TOKEN
+      : undefined,
+});
 
-export const db = drizzle(client)
+export const db = drizzle(client);
 ```
 
 ### Production
@@ -146,56 +139,59 @@ In production, we connect to Turso's cloud service:
 
 ```typescript
 // lib/db/index.ts with connection pooling
-import { drizzle } from 'drizzle-orm/libsql'
-import { createClient } from '@libsql/client'
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
 // Create a connection to Turso
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL as string,
   authToken: process.env.TURSO_AUTH_TOKEN as string,
-})
+});
 
 // Initialize drizzle with the client
-export const db = drizzle(client)
+export const db = drizzle(client);
 ```
 
 ## Database Seeding
 
-The application includes seed scripts to populate the database with initial data:
+The application includes seed scripts to populate test user data for development:
 
 ```typescript
 // scripts/seed.ts
-import { db } from '@/lib/db'
-import { flags, users, userProgress } from '@/lib/db/schema'
-import flagData from './flag-data.json'
+import { db } from "@/lib/db";
+import { users, userSettings } from "@/lib/db/schema";
 
 async function main() {
-  // Seed flags
-  console.log('Seeding flags...')
-  for (const flag of flagData) {
-    await db.insert(flags).values(flag).onConflictDoNothing()
-  }
-
   // Seed test users
-  console.log('Seeding test users...')
+  console.log("Seeding test users...");
   const testUsers = [
     /* ... */
-  ]
+  ];
   for (const user of testUsers) {
-    await db.insert(users).values(user).onConflictDoNothing()
+    await db.insert(users).values(user).onConflictDoNothing();
   }
 
-  // Seed progress data
+  // Seed user settings
   // ...
 }
 
 main()
-  .then(() => console.log('Database seeded successfully'))
+  .then(() => console.log("Database seeded successfully"))
   .catch((e) => {
-    console.error('Error seeding database:', e)
-    process.exit(1)
-  })
+    console.error("Error seeding database:", e);
+    process.exit(1);
+  });
 ```
+
+## Performance Benefits of Static Flag Data
+
+By moving flag data from the database to static application code:
+
+1. **Reduced Database Queries**: Flag data is loaded at build time or application start
+2. **Faster Page Loads**: No database latency for flag information
+3. **Simplified Data Access**: Direct access to flag data through JavaScript functions
+4. **Lower Database Load**: Database only used for user-specific data
+5. **Better Scaling**: Static data can be cached by CDN and browsers
 
 ## Backup and Disaster Recovery
 
@@ -211,7 +207,7 @@ Turso provides automatic backups and replication across multiple locations. The 
 
 ### Read Performance Optimization
 
-Turso is optimized for read-heavy workloads, making it ideal for our Flag Trainer application. To maximize performance:
+Turso is optimized for read-heavy workloads. To maximize performance:
 
 1. **Strategic indexing**: Indexes on frequently queried columns
 2. **Query optimization**: Well-structured queries that utilize indexes
