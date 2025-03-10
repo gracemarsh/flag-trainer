@@ -1,17 +1,17 @@
-import { track } from '@vercel/analytics'
+import { track } from "@vercel/analytics";
 
 /**
  * Flag training events that can be tracked
  */
 export type TrainingEvent =
-  | 'session_start'
-  | 'session_complete'
-  | 'answer_correct'
-  | 'answer_incorrect'
-  | 'flag_viewed'
-  | 'library_search'
-  | 'difficulty_changed'
-  | 'theme_changed'
+  | "session_start"
+  | "session_complete"
+  | "answer_correct"
+  | "answer_incorrect"
+  | "flag_viewed"
+  | "library_search"
+  | "difficulty_changed"
+  | "theme_changed";
 
 /**
  * Track a user action in the application
@@ -20,15 +20,15 @@ export type TrainingEvent =
  */
 export function trackEvent(
   event: TrainingEvent,
-  properties?: Record<string, string | number | boolean>
+  properties?: Record<string, string | number | boolean>,
 ) {
   // Wrap in try/catch to prevent tracking errors from breaking the app
   try {
-    track(event, properties)
+    track(event, properties);
   } catch (error) {
     // Log tracking errors only in development
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('Error tracking event:', error)
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Error tracking event:", error);
     }
   }
 }
@@ -39,10 +39,10 @@ export function trackEvent(
  * @param flagCount Number of flags in the session
  */
 export function trackSessionStart(sessionType: string, flagCount: number) {
-  trackEvent('session_start', {
+  trackEvent("session_start", {
     sessionType,
     flagCount,
-  })
+  });
 }
 
 /**
@@ -56,15 +56,15 @@ export function trackSessionComplete(
   sessionType: string,
   score: number,
   totalFlags: number,
-  timeSpentSeconds: number
+  timeSpentSeconds: number,
 ) {
-  trackEvent('session_complete', {
+  trackEvent("session_complete", {
     sessionType,
     score,
     totalFlags,
     accuracy: Math.round((score / totalFlags) * 100),
     timeSpentSeconds,
-  })
+  });
 }
 
 /**
@@ -73,12 +73,16 @@ export function trackSessionComplete(
  * @param flagName Name of the country
  * @param continent Continent of the country
  */
-export function trackFlagViewed(flagCode: string, flagName: string, continent: string) {
-  trackEvent('flag_viewed', {
+export function trackFlagViewed(
+  flagCode: string,
+  flagName: string,
+  continent: string,
+) {
+  trackEvent("flag_viewed", {
     flagCode,
     flagName,
     continent,
-  })
+  });
 }
 
 /**
@@ -87,9 +91,13 @@ export function trackFlagViewed(flagCode: string, flagName: string, continent: s
  * @param isCorrect Whether the answer was correct
  * @param responseTimeMs Time taken to answer in milliseconds
  */
-export function trackAnswer(flagCode: string, isCorrect: boolean, responseTimeMs: number) {
-  trackEvent(isCorrect ? 'answer_correct' : 'answer_incorrect', {
+export function trackAnswer(
+  flagCode: string,
+  isCorrect: boolean,
+  responseTimeMs: number,
+) {
+  trackEvent(isCorrect ? "answer_correct" : "answer_incorrect", {
     flagCode,
     responseTimeMs,
-  })
+  });
 }

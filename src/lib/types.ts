@@ -4,18 +4,21 @@
  */
 
 // Base type for dynamic route parameters
-export type RouteParams = Record<string, string>
+export type RouteParams = Record<string, string>;
 
 // Type for Next.js page props in dynamic routes
 export interface NextPageProps<T extends RouteParams = RouteParams> {
-  params: T
-  searchParams?: Record<string, string | string[] | undefined>
+  params: T;
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 // Specific type for dynamic flag route
 export type FlagRouteParams = {
-  code: string
-}
+  code: string;
+};
 
 // Export commonly used specialized types
-export type FlagDetailPageProps = NextPageProps<FlagRouteParams>
+export type FlagDetailPageProps = {
+  params: FlagRouteParams;
+  searchParams?: Record<string, string | string[] | undefined>;
+};

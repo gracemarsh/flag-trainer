@@ -91,6 +91,16 @@ Where `{country-code}` is the ISO 3166-1 alpha-2 code (e.g., "us", "gb", "jp").
 - `/public` - Static assets including flag images
 - `/scripts` - Database seeding and other scripts
 
+## Testing
+
+The project uses Jest and React Testing Library for testing. To run the tests:
+
+```bash
+pnpm test
+```
+
+For more detailed information about testing, see the [TESTING.md](TESTING.md) file.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

@@ -5,10 +5,10 @@
 
 // Define custom performance metrics
 export type CustomMetric =
-  | 'flag-image-load'
-  | 'quiz-answer-time'
-  | 'session-load-time'
-  | 'library-search-time'
+  | "flag-image-load"
+  | "quiz-answer-time"
+  | "session-load-time"
+  | "library-search-time";
 
 /**
  * Start measuring a custom performance metric
@@ -16,12 +16,16 @@ export type CustomMetric =
  * @param id Optional ID to distinguish between multiple instances of the same metric
  */
 export function startMeasure(metricName: CustomMetric, id?: string): void {
-  if (typeof window === 'undefined' || !window.performance || !window.performance.mark) {
-    return
+  if (
+    typeof window === "undefined" ||
+    !window.performance ||
+    !window.performance.mark
+  ) {
+    return;
   }
 
-  const markName = id ? `${metricName}-${id}-start` : `${metricName}-start`
-  window.performance.mark(markName)
+  const markName = id ? `${metricName}-${id}-start` : `${metricName}-start`;
+  window.performance.mark(markName);
 }
 
 /**
@@ -30,44 +34,51 @@ export function startMeasure(metricName: CustomMetric, id?: string): void {
  * @param id Optional ID matching the one used in startMeasure
  * @returns The duration in milliseconds, or undefined if measurement failed
  */
-export function endMeasure(metricName: CustomMetric, id?: string): number | undefined {
+export function endMeasure(
+  metricName: CustomMetric,
+  id?: string,
+): number | undefined {
   if (
-    typeof window === 'undefined' ||
+    typeof window === "undefined" ||
     !window.performance ||
     !window.performance.mark ||
     !window.performance.measure
   ) {
-    return undefined
+    return undefined;
   }
 
-  const startMarkName = id ? `${metricName}-${id}-start` : `${metricName}-start`
-  const endMarkName = id ? `${metricName}-${id}-end` : `${metricName}-end`
+  const startMarkName = id
+    ? `${metricName}-${id}-start`
+    : `${metricName}-start`;
+  const endMarkName = id ? `${metricName}-${id}-end` : `${metricName}-end`;
 
   // Mark the end
-  window.performance.mark(endMarkName)
+  window.performance.mark(endMarkName);
 
   try {
     // Create a measure between start and end mark
-    const measureName = id ? `${metricName}-${id}` : metricName
-    window.performance.measure(measureName, startMarkName, endMarkName)
+    const measureName = id ? `${metricName}-${id}` : metricName;
+    window.performance.measure(measureName, startMarkName, endMarkName);
 
     // Get the measure
-    const entries = window.performance.getEntriesByName(measureName, 'measure')
+    const entries = window.performance.getEntriesByName(measureName, "measure");
     if (entries.length > 0) {
-      const duration = entries[0].duration
+      const duration = entries[0].duration;
 
       // Report the measure to console in development
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`Performance: ${measureName} took ${duration.toFixed(2)}ms`)
+      if (process.env.NODE_ENV !== "production") {
+        console.log(
+          `Performance: ${measureName} took ${duration.toFixed(2)}ms`,
+        );
       }
 
-      return duration
+      return duration;
     }
   } catch (error) {
-    console.error(`Error measuring performance for ${metricName}:`, error)
+    console.error(`Error measuring performance for ${metricName}:`, error);
   }
 
-  return undefined
+  return undefined;
 }
 
 /**
@@ -80,17 +91,17 @@ export function endMeasure(metricName: CustomMetric, id?: string): number | unde
 export async function measureAsync<T>(
   metricName: CustomMetric,
   fn: () => Promise<T>,
-  id?: string
+  id?: string,
 ): Promise<T> {
-  startMeasure(metricName, id)
+  startMeasure(metricName, id);
 
   try {
-    const result = await fn()
-    endMeasure(metricName, id)
-    return result
+    const result = await fn();
+    endMeasure(metricName, id);
+    return result;
   } catch (error) {
-    endMeasure(metricName, id)
-    throw error
+    endMeasure(metricName, id);
+    throw error;
   }
 }
 
@@ -102,24 +113,24 @@ export async function measureAsync<T>(
  */
 export function measureImageLoad(src: string, id?: string): Promise<void> {
   return new Promise((resolve) => {
-    if (typeof window === 'undefined') {
-      resolve()
-      return
+    if (typeof window === "undefined") {
+      resolve();
+      return;
     }
 
-    const metricId = id || src.substring(src.lastIndexOf('/') + 1)
-    startMeasure('flag-image-load', metricId)
+    const metricId = id || src.substring(src.lastIndexOf("/") + 1);
+    startMeasure("flag-image-load", metricId);
 
-    const img = new Image()
+    const img = new Image();
     img.onload = () => {
-      endMeasure('flag-image-load', metricId)
-      resolve()
-    }
+      endMeasure("flag-image-load", metricId);
+      resolve();
+    };
     img.onerror = () => {
       // Still end measurement even if there's an error
-      endMeasure('flag-image-load', metricId)
-      resolve()
-    }
-    img.src = src
-  })
+      endMeasure("flag-image-load", metricId);
+      resolve();
+    };
+    img.src = src;
+  });
 }

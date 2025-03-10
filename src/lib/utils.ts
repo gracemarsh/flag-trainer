@@ -1,8 +1,8 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
@@ -11,12 +11,15 @@ export function cn(...inputs: ClassValue[]) {
  * @param size Size of the flag image (width in pixels)
  * @returns URL to the flag image
  */
-export function getFlagImageUrl(countryCode: string, size: number = 320): string {
+export function getFlagImageUrl(
+  countryCode: string,
+  size: number = 320,
+): string {
   if (!countryCode) {
-    console.warn('Warning: Invalid country code provided to getFlagImageUrl')
-    return '/placeholder-flag.png' // Fallback image path
+    console.warn("Warning: Invalid country code provided to getFlagImageUrl");
+    return "/placeholder-flag.png"; // Fallback image path
   }
-  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`
+  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`;
 }
 
 /**
@@ -26,10 +29,10 @@ export function getFlagImageUrl(countryCode: string, size: number = 320): string
  */
 export function getFlagSvgUrl(countryCode: string): string {
   if (!countryCode) {
-    console.warn('Warning: Invalid country code provided to getFlagSvgUrl')
-    return '/placeholder-flag.svg' // Fallback image path
+    console.warn("Warning: Invalid country code provided to getFlagSvgUrl");
+    return "/placeholder-flag.svg"; // Fallback image path
   }
-  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`
+  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
 }
 
 /**
@@ -38,15 +41,18 @@ export function getFlagSvgUrl(countryCode: string): string {
  * @param size Size of the flag image (width in pixels)
  * @returns URL to the flag image
  */
-export function getFlagUrl(countryCode: string | undefined, size: number = 320): string {
+export function getFlagUrl(
+  countryCode: string | undefined,
+  size: number = 320,
+): string {
   // Safety check for undefined or invalid country code
   if (!countryCode) {
-    console.warn('Warning: Invalid country code provided to getFlagUrl')
-    return '/placeholder-flag.png' // Fallback image path
+    console.warn("Warning: Invalid country code provided to getFlagUrl");
+    return "/placeholder-flag.png"; // Fallback image path
   }
 
   // Use the flagcdn.com URL
-  return getFlagImageUrl(countryCode, size)
+  return getFlagImageUrl(countryCode, size);
 
   // For fallback, we could return a local path if needed:
   // return `/flags/${countryCode.toLowerCase()}.svg`;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * This file used to contain client-side database access code,
@@ -10,4 +10,4 @@
  */
 
 // Export a dummy value to prevent import errors in existing code
-export const browserDb = null
+export const browserDb = null;
