@@ -6,6 +6,18 @@ const nextConfig = {
   },
   // Disable static generation of pages that fetch data
   output: 'standalone',
+  // Configure allowed image domains
+  images: {
+    domains: ['flagcdn.com'],
+    // Optional: Add remote patterns for more specificity
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+        pathname: '**',
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig; 
