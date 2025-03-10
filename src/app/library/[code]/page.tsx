@@ -20,9 +20,10 @@ type PageParams = {
   params: Promise<{ code: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+//usevia.app/#/
 
 // Metadata generator
-export async function generateMetadata({
+https: export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
   const resolvedParams = await params;

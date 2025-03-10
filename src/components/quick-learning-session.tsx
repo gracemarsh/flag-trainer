@@ -28,16 +28,20 @@ type Flag = InferSelectModel<typeof schema.flags>;
 
 interface QuickLearningSessionProps {
   flags: Flag[];
+  sessionTitle?: string;
 }
 
-export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
+export function QuickLearningSession({
+  flags,
+  sessionTitle = "Quick Learning Session",
+}: QuickLearningSessionProps) {
   // Always declare hooks at the top level
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
-  const [startTime] = useState(() => Date.now());
+  const [startTime, setStartTime] = useState(() => Date.now());
   const [answerStartTime, setAnswerStartTime] = useState(() => Date.now());
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const sessionLoadTimeRef = useRef<number | null>(null);
@@ -50,16 +54,15 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
   useEffect(() => {
     if (flags && flags.length > 0) {
       startMeasure("session-load-time");
-      trackSessionStart("quick", flags.length);
+      trackSessionStart(sessionTitle, flags.length);
     }
 
     return () => {
-      // End measure if component unmounts
-      if (!sessionLoadTimeRef.current) {
-        sessionLoadTimeRef.current = endMeasure("session-load-time") ?? null;
+      if (flags && flags.length > 0) {
+        endMeasure("session-load-time");
       }
     };
-  }, [flags]);
+  }, [flags, sessionTitle]);
 
   // Measure image load time when currentFlag changes
   useEffect(() => {
@@ -187,7 +190,7 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
         (Date.now() - startTime) / 1000,
       );
       trackSessionComplete(
-        "quick",
+        sessionTitle,
         score + (selectedAnswer === currentFlag.name ? 1 : 0),
         flags.length,
         sessionDurationSeconds,
@@ -195,38 +198,44 @@ export function QuickLearningSession({ flags }: QuickLearningSessionProps) {
     }
   };
 
+  const resetSession = () => {
+    setCurrentIndex(0);
+    setScore(0);
+    setIsAnswered(false);
+    setSelectedAnswer(null);
+    setIsSessionComplete(false);
+    setStartTime(Date.now());
+    trackSessionStart(sessionTitle, flags.length);
+  };
+
   if (isSessionComplete) {
     return (
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Session Complete!</CardTitle>
+          <CardTitle>{sessionTitle} Completed!</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-center mb-6">
-            <p className="text-4xl font-bold mb-2">
-              {score} / {flags.length}
-            </p>
-            <p className="text-muted-foreground">
-              You got {score} out of {flags.length} flags correct!
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <p className="text-center">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <div className="text-lg font-medium">Your Results</div>
+            <div className="text-5xl font-bold">
+              {score}/{flags.length}
+            </div>
+            <div className="text-muted-foreground">
               {score === flags.length
                 ? "Perfect score! You're a flag expert!"
                 : score >= flags.length / 2
                   ? "Good job! Keep practicing to improve your score."
                   : "Keep learning! You'll get better with practice."}
-            </p>
+            </div>
           </div>
+          <Progress value={(score / flags.length) * 100} className="h-3" />
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button asChild variant="outline">
-            <Link href="/learn">Back to Learn</Link>
+          <Button variant="outline" onClick={() => resetSession()}>
+            Try Again
           </Button>
           <Button asChild>
-            <Link href="/learn/quick">Try Again</Link>
+            <Link href="/learn">Return to Learn</Link>
           </Button>
         </CardFooter>
       </Card>
