@@ -1,4 +1,4 @@
-# Flag Trainer: Product Requirements
+# Flag Trainer: Requirements Specification
 
 ## Overview
 
@@ -37,6 +37,18 @@ The application uses a static data approach for flag information, with flag data
 - Search functionality to find specific flags
 - Educational facts about each country and its flag
 
+### User Authentication and Progress Synchronization
+
+- **Guest mode with local storage** as the default experience
+  - Automatic assignment of guest ID stored in local storage
+  - Progress data saved locally without requiring a user account
+- **Optional account creation** for cross-device synchronization
+  - Email and password registration
+  - Automatic synchronization of local progress data when a user signs in or creates an account
+- **Seamless data migration** from guest to authenticated user
+  - Local data is preserved and synchronized to the server upon account creation or sign-in
+  - Conflict resolution for multi-device usage
+
 ## Nice-to-Have Features (Future Iterations)
 
 ### Competition Mode
@@ -53,11 +65,11 @@ The application uses a static data approach for flag information, with flag data
   - Overall accuracy
   - Time-based performance
 
-### User Accounts
+### Enhanced User Account Features
 
-- **Guest mode** with local storage of progress
-- **User accounts** via email registration
-- **Progress synchronization** across devices
+- **OAuth authentication** via Google, GitHub, etc.
+- **Extended profile customization**
+- **Learning analytics** with detailed performance metrics
 - **Personalized learning paths** based on performance
 - **Achievement system** to reward learning milestones
 
@@ -75,3 +87,5 @@ The application uses a static data approach for flag information, with flag data
 - **Dark/light mode** and other UI customizations
 - **Sound effects and music** with toggle options
 - **Offline mode** for learning without internet connection
+  - Enhanced offline capabilities with periodic background synchronization
+  - Ability to use all core features without an internet connection
