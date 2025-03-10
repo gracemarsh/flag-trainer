@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,6 +48,31 @@ export function QuickLearningSession({
   // Get current flag (defined early to avoid duplicate calculation)
   const currentFlag =
     flags && flags.length > 0 ? flags[currentIndex] : undefined;
+
+  // Generate options using useMemo to prevent regeneration on each render
+  // Options will only be regenerated when currentFlag changes
+  const options = useMemo(() => {
+    if (!currentFlag) return [];
+
+    const options = [currentFlag.name];
+    const otherFlags = [...flags].filter((f) => f.id !== currentFlag.id);
+
+    // Shuffle and take 3
+    for (let i = otherFlags.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [otherFlags[i], otherFlags[j]] = [otherFlags[j], otherFlags[i]];
+    }
+
+    options.push(...otherFlags.slice(0, 3).map((f) => f.name));
+
+    // Shuffle options
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    return options;
+  }, [currentFlag, flags]); // Only regenerate when the current flag changes
 
   // Track session start and measure session load time
   useEffect(() => {
@@ -113,30 +138,6 @@ export function QuickLearningSession({
       </Card>
     );
   }
-
-  // Generate 3 random incorrect options
-  const generateOptions = () => {
-    const options = [currentFlag.name];
-    const otherFlags = [...flags].filter((f) => f.id !== currentFlag.id);
-
-    // Shuffle and take 3
-    for (let i = otherFlags.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [otherFlags[i], otherFlags[j]] = [otherFlags[j], otherFlags[i]];
-    }
-
-    options.push(...otherFlags.slice(0, 3).map((f) => f.name));
-
-    // Shuffle options
-    for (let i = options.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [options[i], options[j]] = [options[j], options[i]];
-    }
-
-    return options;
-  };
-
-  const options = generateOptions();
 
   const handleAnswer = () => {
     if (!selectedAnswer) return;
