@@ -124,3 +124,30 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Flag image styling */
+.flag-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.flag-container img {
+  height: 100%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure flag images maintain aspect ratio */
+@media (prefers-reduced-motion: no-preference) {
+  .flag-container img {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .flag-container:hover img {
+    transform: scale(1.05);
+  }
+}

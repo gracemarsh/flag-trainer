@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { FlagImage } from "@/components/ui/flag-image";
 
 // Continent information with representative flags and descriptions
 const continents = [
@@ -87,14 +87,9 @@ export default function ContinentSelectionPage() {
                 {continent.flagCodes.map((code) => (
                   <div
                     key={code}
-                    className="relative w-12 h-8 overflow-hidden rounded-sm border"
+                    className="relative overflow-hidden rounded-sm border flex items-center justify-center p-1"
                   >
-                    <Image
-                      src={`https://flagcdn.com/w80/${code.toLowerCase()}.png`}
-                      alt={`Flag example`}
-                      fill
-                      className="object-cover"
-                    />
+                    <FlagImage countryCode={code} size="sm" />
                   </div>
                 ))}
               </div>

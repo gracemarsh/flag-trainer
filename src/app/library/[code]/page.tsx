@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { schema } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -13,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { eq } from "drizzle-orm";
-import { getFlagUrl } from "@/lib/utils";
+import { FlagImage } from "@/components/ui/flag-image";
 
 // Define params type using Promise
 type PageParams = {
@@ -65,12 +64,12 @@ export default async function FlagDetailPage({ params }: PageParams) {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col sm:flex-row gap-8">
           <div className="w-full sm:w-1/2 lg:w-1/3">
-            <div className="aspect-video relative overflow-hidden rounded-lg border">
-              <Image
-                src={getFlagUrl(flag.code, 640)}
-                alt={`Flag of ${flag.name}`}
-                fill
-                className="object-cover"
+            <div className="aspect-video relative overflow-hidden rounded-lg border flex items-center justify-center bg-muted/5 p-4">
+              <FlagImage
+                countryCode={flag.code}
+                altText={`Flag of ${flag.name}`}
+                size="xl"
+                className="mx-auto"
               />
             </div>
           </div>

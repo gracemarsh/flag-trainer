@@ -6,10 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getFlagUrl } from "@/lib/utils";
+import { FlagImage } from "@/components/ui/flag-image";
 
 export default async function LibraryPage() {
   const flags = await db.query.flags.findMany({
@@ -32,12 +31,12 @@ export default async function LibraryPage() {
               <CardTitle className="text-lg">{flag.name}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 pb-2 flex-grow">
-              <div className="aspect-video relative overflow-hidden rounded-md border mb-3">
-                <Image
-                  src={getFlagUrl(flag.code, 320)}
-                  alt={`Flag of ${flag.name}`}
-                  fill
-                  className="object-cover"
+              <div className="aspect-video relative overflow-hidden rounded-md border mb-3 flex items-center justify-center bg-muted/20 p-2">
+                <FlagImage
+                  countryCode={flag.code}
+                  altText={`Flag of ${flag.name}`}
+                  size="md"
+                  className="mx-auto"
                 />
               </div>
               <div className="text-sm text-muted-foreground">

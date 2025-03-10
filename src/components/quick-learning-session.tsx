@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,6 +22,7 @@ import {
   trackAnswer,
 } from "@/lib/analytics";
 import { startMeasure, endMeasure, measureImageLoad } from "@/lib/performance";
+import { FlagImage } from "@/components/ui/flag-image";
 
 type Flag = InferSelectModel<typeof schema.flags>;
 
@@ -43,7 +43,6 @@ export function QuickLearningSession({
   const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [startTime, setStartTime] = useState(() => Date.now());
   const [answerStartTime, setAnswerStartTime] = useState(() => Date.now());
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const sessionLoadTimeRef = useRef<number | null>(null);
 
   // Get current flag (defined early to avoid duplicate calculation)
@@ -67,14 +66,8 @@ export function QuickLearningSession({
   // Measure image load time when currentFlag changes
   useEffect(() => {
     if (currentFlag) {
-      setIsImageLoaded(false);
       // We don't need to await this, it will resolve when the image loads
-      measureImageLoad(
-        getFlagUrl(currentFlag.code, 640),
-        currentFlag.code,
-      ).then(() => {
-        setIsImageLoaded(true);
-      });
+      measureImageLoad(getFlagUrl(currentFlag.code, 640), currentFlag.code);
     }
   }, [currentIndex, flags, currentFlag]);
 
@@ -256,18 +249,12 @@ export function QuickLearningSession({
         <Progress value={(currentIndex / flags.length) * 100} className="h-2" />
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="aspect-video relative overflow-hidden rounded-lg border">
-          {!isImageLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <p className="text-muted-foreground">Loading flag...</p>
-            </div>
-          )}
-          <Image
-            src={getFlagUrl(currentFlag.code, 640)}
-            alt="Flag"
-            fill
-            className={`object-cover transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"}`}
-            onLoad={() => setIsImageLoaded(true)}
+        <div className="aspect-video relative overflow-hidden rounded-lg border flex items-center justify-center bg-muted/20 p-4">
+          <FlagImage
+            countryCode={currentFlag.code}
+            altText="Flag"
+            size="xl"
+            className="mx-auto"
           />
         </div>
 
