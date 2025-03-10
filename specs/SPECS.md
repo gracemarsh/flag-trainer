@@ -26,23 +26,30 @@ Flag Trainer uses a hybrid data approach:
 - [Data Models](core/data-models.md): Database schema and data structures
 - [Authentication](core/auth.md): User authentication and session management
 - [Product Requirements](../product-requirements.md): Core product requirements and features
+- [Spaced Repetition System](core/spaced-repetition.md): Detailed algorithm and implementation
 
 ### User Interface
 
 - [User Flows](ui/user-flows.md): User journey descriptions and navigation flows
 - [Components](ui/components.md): UI component specifications
 - [Layouts](ui/layouts.md): Page layout specifications
+- [Spaced Repetition UI](ui/spaced-repetition-ui.md): Spaced learning interface specifications
 
 ### API
 
 - [API Endpoints](api/api-endpoints.md): REST API structure and documentation
+- [Spaced Repetition API](api/spaced-repetition-api.md): API for spaced repetition synchronization
+
+### Implementation
+
+- [Spaced Repetition Client](implementation/spaced-repetition-client.md): Client-side implementation details
 
 ### Planning and Implementation
 
-- [MVP Definition](../plan/mvp.md): Minimum viable product specification
-- [Roadmap](../plan/roadmap.md): Development phases and timeline
-- [Implementation Strategy](../plan/implementation-strategy.md): Development workflow and methodologies
-- [Testing Strategy](../plan/testing-strategy.md): Testing approach and best practices
+- [MVP Definition](plan/mvp.md): Minimum viable product specification
+- [Roadmap](plan/roadmap.md): Development phases and timeline
+- [Implementation Strategy](plan/implementation-strategy.md): Development workflow and methodologies
+- [Testing Strategy](plan/testing-strategy.md): Testing approach and best practices
 
 ### Technology Stack
 
@@ -66,4 +73,4 @@ Flag Trainer uses a hybrid data approach:
 
 ## Development Timeline
 
-Please refer to the [Roadmap](../plan/roadmap.md) document for detailed development timeline and milestones.
+Please refer to the [Roadmap](plan/roadmap.md) document for detailed development timeline and milestones.
