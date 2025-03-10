@@ -46,13 +46,14 @@ Flag Trainer is a web application designed to help users learn all the flags of 
 
 ## Project Progress
 
-| Feature             | Specification | Implementation | Testing     | Status   |
-| ------------------- | ------------- | -------------- | ----------- | -------- |
-| Learning Mode       | Complete      | Not Started    | Not Started | Planning |
-| Flag Library        | Complete      | Not Started    | Not Started | Planning |
-| Spaced Repetition   | Complete      | Not Started    | Not Started | Planning |
-| User Authentication | Complete      | Not Started    | Not Started | Planning |
-| Competition Mode    | Future        | Not Planned    | Not Planned | Future   |
+| Feature             | Specification | Implementation | Testing     | Status      |
+| ------------------- | ------------- | -------------- | ----------- | ----------- |
+| Learning Mode       | Complete      | Complete       | Complete    | Implemented |
+| Flag Library        | Complete      | Complete       | Complete    | Implemented |
+| Continent Learning  | Complete      | Complete       | Complete    | Implemented |
+| Spaced Repetition   | Complete      | Not Started    | Not Started | Planning    |
+| User Authentication | Complete      | Not Started    | Not Started | Planning    |
+| Competition Mode    | Future        | Not Planned    | Not Planned | Future      |
 
 ## Development Timeline
 

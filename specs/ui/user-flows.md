@@ -24,6 +24,30 @@
 6. After a set number of flags (e.g., 10), a progress summary is displayed
 7. User can choose to continue or return to home page
 
+## Learn by Continent Flow
+
+1. User clicks "Learn" from the home page
+2. User selects "By Continent" from the learning options
+3. User is presented with a selection of continents:
+   - Africa
+   - Asia
+   - Europe
+   - North America
+   - Oceania
+   - South America
+4. Each continent is displayed with a representative flag and brief description
+5. User selects a continent
+6. System retrieves flags specific to the selected continent
+7. User is presented with flags from the chosen continent in a learning session:
+   - Four multiple-choice options for each flag
+   - Immediate feedback after answering
+   - "Next" button to proceed
+8. After all flags in the session, a summary is displayed showing:
+   - Score
+   - Time taken
+   - Accuracy percentage
+9. User can choose to retry with the same continent, select a different continent, or return to home page
+
 ## Flag Library Flow
 
 1. User clicks "Library" from the home page

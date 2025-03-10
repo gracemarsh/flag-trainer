@@ -16,11 +16,14 @@ Flag Trainer is a web application designed to help users learn all the flags of 
 ### Learning Mode
 
 - **Flashcard-style quiz system** with four multiple-choice answers
+- **Learning by continent** allowing users to focus on flags from specific geographical regions
+- **Quick learning sessions** with randomized flags for general practice
 - **Spaced repetition algorithm** to optimize learning efficiency by prioritizing flags that users struggle with
 - **Immediate visual feedback**: green background for correct answers, red for incorrect
 - **Progression control**: users must press "Next" to proceed after answering
 - **Educational hints** including geographical and cultural facts (population, continent, language)
 - **Progress tracking** to show mastery level of different flags
+- **Session statistics** showing score, time spent, and accuracy at the end of each session
 
 ### Flag Library
 

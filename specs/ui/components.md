@@ -114,7 +114,27 @@ A grid display of flags for the library section.
 - Performance remains good even with all flags loaded
 - Focus management allows keyboard navigation through the grid
 
-### 2. Competition Timer
+### 2. Continent Selection Grid
+
+A grid of continent cards for the Learn by Continent feature.
+
+#### Requirements
+
+1. Visual cards for each continent with representative flag image
+2. Brief description of each continent
+3. Count of available flags for each continent
+4. Interactive hover and focus states
+5. Responsive layout (1-3 columns depending on screen size)
+
+#### Acceptance Criteria
+
+- Cards display correctly with proper spacing and alignment
+- Navigation to specific continent learning sessions works correctly
+- Visual feedback on hover/focus is clear and consistent
+- Layout is responsive and maintains proper appearance across device sizes
+- Cards provide sufficient information about each continent option
+
+### 3. Competition Timer
 
 A timer component for the competition mode.
 
