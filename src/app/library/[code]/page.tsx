@@ -23,7 +23,7 @@ type PageParams = {
 //usevia.app/#/
 
 // Metadata generator
-https: export async function generateMetadata({
+export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
   const resolvedParams = await params;

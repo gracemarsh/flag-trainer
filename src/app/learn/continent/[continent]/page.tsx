@@ -38,13 +38,15 @@ function formatContinent(continentParam: string): string | null {
 
 // Define the type for page props
 type ContinentPageProps = {
-  params: {
-    continent: string;
-  };
+  params: Promise<{ continent: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function ContinentLearningPage(props: ContinentPageProps) {
-  const { continent: continentParam } = props.params;
+  // Always resolve params
+  const resolvedParams = await props.params;
+  const { continent: continentParam } = resolvedParams;
+
   const continentName = formatContinent(continentParam);
 
   // If continent is invalid, show 404
