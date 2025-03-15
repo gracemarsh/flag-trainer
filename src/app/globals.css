@@ -125,6 +125,67 @@
   }
 }
 
+/* Flag Banner Animations */
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes slideRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-left {
+  animation: slideLeft 160s linear infinite;
+  min-width: 200%;
+  display: flex;
+}
+
+.animate-slide-right {
+  animation: slideRight 160s linear infinite;
+  min-width: 200%;
+  display: flex;
+}
+
+.flag-banner-row {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  padding: 0.5rem 0;
+  position: relative;
+}
+
+.flag-banner-gradient-left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+  background: linear-gradient(to right, var(--background) 0%, transparent 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.flag-banner-gradient-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+  background: linear-gradient(to left, var(--background) 0%, transparent 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
 /* Flag image styling */
 .flag-container {
   display: flex;

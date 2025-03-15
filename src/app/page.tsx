@@ -8,26 +8,36 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { FlagBanner } from "@/components/flag-banner";
+import { PageContainer } from "@/components/page-container";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-8 sm:p-24">
-      <div className="max-w-5xl w-full flex flex-col items-center text-center">
-        <h1 className="text-4xl sm:text-6xl font-bold mb-4">Flag Trainer</h1>
-        <p className="text-xl mb-8">
-          Learn all the flags of the world with spaced repetition
-        </p>
+    <main className="flex min-h-screen flex-col items-center">
+      <div className="w-full">
+        <FlagBanner>
+          <div className="max-w-5xl w-full flex flex-col items-center text-center">
+            <h1 className="text-4xl sm:text-6xl font-bold mb-4">
+              Flag Trainer
+            </h1>
+            <p className="text-xl mb-8">
+              Learn all the flags of the world with spaced repetition
+            </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-12">
-          <Button asChild size="lg" className="text-lg">
-            <Link href="/learn">Start Learning</Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="text-lg">
-            <Link href="/library">Browse Flags</Link>
-          </Button>
-        </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild size="lg" className="text-lg">
+                <Link href="/learn">Start Learning</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="text-lg">
+                <Link href="/library">Browse Flags</Link>
+              </Button>
+            </div>
+          </div>
+        </FlagBanner>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+      <PageContainer>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full py-12">
           <FeatureCard
             title="Learning Mode"
             description="Learn flags with flashcards and spaced repetition to efficiently memorize flags."
@@ -47,7 +57,7 @@ export default function Home() {
             linkText="View Progress"
           />
         </div>
-      </div>
+      </PageContainer>
     </main>
   );
 }
