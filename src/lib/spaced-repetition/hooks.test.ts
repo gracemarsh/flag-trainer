@@ -6,8 +6,10 @@ import {
   useSpacedLearningSession,
   useProgressStats,
   useNextReviewDate,
+  useSyncStatus,
 } from "./hooks";
 import * as storage from "./storage";
+import * as sync from "./sync";
 
 // Mock the storage module
 jest.mock("./storage", () => ({
@@ -16,6 +18,14 @@ jest.mock("./storage", () => ({
   updateFlagProgress: jest.fn(),
   getDueFlags: jest.fn(),
   getProgressStats: jest.fn(),
+}));
+
+// Mock the sync module
+jest.mock("./sync", () => ({
+  initializeSync: jest.fn(),
+  cleanupSync: jest.fn(),
+  getSyncState: jest.fn(),
+  forceSynchronization: jest.fn(),
 }));
 
 // Mock fetch for API calls
@@ -56,6 +66,15 @@ describe("Spaced Repetition Hooks", () => {
       accuracy: 87.5,
       dueCount: 2,
       masteredCount: 0,
+    });
+
+    // Setup sync mocks
+    (sync.getSyncState as jest.Mock).mockReturnValue({
+      isOnline: true,
+      isSyncing: false,
+      lastSyncTime: Date.now(),
+      queuedChanges: [],
+      syncError: null,
     });
 
     // Mock fetch to return some flag data
@@ -266,6 +285,137 @@ describe("Spaced Repetition Hooks", () => {
 
       // Should return null for unknown flag
       expect(result.current).toBeNull();
+    });
+  });
+
+  describe("useSyncStatus", () => {
+    // Mock setInterval and clearInterval
+    jest.useFakeTimers();
+
+    afterEach(() => {
+      jest.clearAllTimers();
+    });
+
+    test("should initialize sync on mount with autoInitialize", () => {
+      renderHook(() => useSyncStatus(true));
+
+      expect(sync.initializeSync).toHaveBeenCalled();
+      expect(sync.getSyncState).toHaveBeenCalled();
+    });
+
+    test("should not initialize sync when autoInitialize is false", () => {
+      renderHook(() => useSyncStatus(false));
+
+      expect(sync.initializeSync).not.toHaveBeenCalled();
+    });
+
+    test("should set up interval to refresh state", () => {
+      renderHook(() => useSyncStatus());
+
+      // Should have set up interval
+      expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 1000);
+    });
+
+    test("should clean up on unmount", () => {
+      const { unmount } = renderHook(() => useSyncStatus());
+
+      unmount();
+
+      expect(sync.cleanupSync).toHaveBeenCalled();
+    });
+
+    test("should call forceSynchronization when sync is called", async () => {
+      const { result } = renderHook(() => useSyncStatus());
+
+      await act(async () => {
+        await result.current.forceSynchronization();
+      });
+
+      expect(sync.forceSynchronization).toHaveBeenCalled();
+      expect(sync.getSyncState).toHaveBeenCalled();
+    });
+
+    test("should refresh state periodically", () => {
+      renderHook(() => useSyncStatus());
+
+      // Clear initial calls
+      jest.clearAllMocks();
+
+      // Advance timer to trigger interval
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      expect(sync.getSyncState).toHaveBeenCalled();
+
+      // Advance again
+      jest.clearAllMocks();
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      expect(sync.getSyncState).toHaveBeenCalled();
+    });
+
+    test("should initialize sync on mount with autoInitialize", () => {
+      renderHook(() => useSyncStatus(true));
+
+      expect(sync.initializeSync).toHaveBeenCalled();
+      expect(sync.getSyncState).toHaveBeenCalled();
+    });
+
+    test("should not initialize sync when autoInitialize is false", () => {
+      renderHook(() => useSyncStatus(false));
+
+      expect(sync.initializeSync).not.toHaveBeenCalled();
+    });
+
+    test("should set up interval to refresh state", () => {
+      renderHook(() => useSyncStatus());
+
+      // Should have set up interval
+      expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 1000);
+    });
+
+    test("should clean up on unmount", () => {
+      const { unmount } = renderHook(() => useSyncStatus());
+
+      unmount();
+
+      expect(sync.cleanupSync).toHaveBeenCalled();
+    });
+
+    test("should call forceSynchronization when sync is called", async () => {
+      const { result } = renderHook(() => useSyncStatus());
+
+      await act(async () => {
+        await result.current.forceSynchronization();
+      });
+
+      expect(sync.forceSynchronization).toHaveBeenCalled();
+      expect(sync.getSyncState).toHaveBeenCalled();
+    });
+
+    test("should refresh state periodically", () => {
+      renderHook(() => useSyncStatus());
+
+      // Clear initial calls
+      jest.clearAllMocks();
+
+      // Advance timer to trigger interval
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      expect(sync.getSyncState).toHaveBeenCalled();
+
+      // Advance again
+      jest.clearAllMocks();
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      expect(sync.getSyncState).toHaveBeenCalled();
     });
   });
 });

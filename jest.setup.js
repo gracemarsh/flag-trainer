@@ -1,9 +1,6 @@
 // Add any global Jest setup here
 import '@testing-library/jest-dom';
 
-// Make TypeScript recognize the testing-library matchers
-import type {} from '@testing-library/jest-dom';
-
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: () => ({

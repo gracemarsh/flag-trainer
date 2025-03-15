@@ -31,7 +31,7 @@ export function FlagImage({
 }: FlagImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Map size to fixed heights
+  // Map size to fixed heights (now used only for image quality/resolution)
   const heightMap = {
     sm: 40, // 40px height for small flags
     md: 80, // 80px height for medium flags
@@ -51,14 +51,9 @@ export function FlagImage({
   return (
     <div
       className={cn(
-        "relative flag-container flex items-center justify-center",
+        "relative flag-container flex items-center justify-center w-full h-full",
         className,
       )}
-      style={{
-        height: `${heightMap[size]}px`,
-        // No fixed width, allow it to be determined by the image
-        minWidth: `${heightMap[size] / 2}px`, // Minimum width to prevent collapse
-      }}
     >
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted">
@@ -69,17 +64,16 @@ export function FlagImage({
         src={flagUrl}
         alt={altText || `Flag of ${countryCode}`}
         className={cn(
-          "h-full w-auto object-contain transition-opacity duration-300",
+          "h-full w-full transition-opacity duration-300",
           isLoaded ? "opacity-100" : "opacity-0",
         )}
         onLoad={handleImageLoad}
-        width={heightMap[size] * 2} // Set initial width for Next.js Image
-        height={heightMap[size]} // Fixed height
         style={{
-          height: heightMap[size],
-          width: "auto", // Allow width to adjust based on aspect ratio
-          maxWidth: "none", // Prevent image from being constrained by container
+          objectFit: "contain", // Make image fill the container while maintaining aspect ratio
+          transform: "none", // Prevent any transforms
+          transition: "opacity 0.3s", // Only transition opacity, not size
         }}
+        fill={true} // Use fill mode to make the image fill its parent container
       />
     </div>
   );

@@ -3,6 +3,8 @@
  * Handles localStorage operations for storing and retrieving learning progress
  */
 import { calculateNextReview, getInitialLearningParameters } from "./algorithm";
+import { queueProgressUpdate } from "./sync";
+import { isLocalStorageAvailable } from "@/lib/utils";
 
 // Storage keys
 const STORAGE_KEY_PREFIX = "flag-trainer-spaced-";
@@ -38,6 +40,11 @@ export interface SpacedRepetitionMetadata {
  * Creates empty data structures if they don't exist yet
  */
 export function initializeStorage(): boolean {
+  // Skip initialization if localStorage is not available (SSR)
+  if (!isLocalStorageAvailable()) {
+    return false;
+  }
+
   try {
     // Check if storage already exists
     if (!localStorage.getItem(STORAGE_KEY_PROGRESS)) {
@@ -65,6 +72,10 @@ export function initializeStorage(): boolean {
  * Get all stored flag progress data
  */
 export function getAllProgressData(): Record<string, FlagProgress> {
+  if (!isLocalStorageAvailable()) {
+    return {};
+  }
+
   try {
     const data = localStorage.getItem(STORAGE_KEY_PROGRESS);
     return data ? JSON.parse(data) : {};
@@ -104,6 +115,8 @@ export function updateFlagProgress(
     const now = new Date();
     const nowIso = now.toISOString();
 
+    let updatedProgress: FlagProgress;
+
     // If we already have progress for this flag, update it
     if (existingProgress) {
       // Calculate new review parameters based on previous performance
@@ -114,7 +127,7 @@ export function updateFlagProgress(
       );
 
       // Update the progress record
-      const updatedProgress: FlagProgress = {
+      updatedProgress = {
         ...existingProgress,
         easeFactor: result.easeFactor,
         interval: result.interval,
@@ -124,12 +137,6 @@ export function updateFlagProgress(
           (existingProgress.correctReviews || 0) + (isCorrect ? 1 : 0),
         lastReviewedAt: nowIso,
       };
-
-      // Save to localStorage
-      allProgress[flagCode] = updatedProgress;
-      localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(allProgress));
-
-      return updatedProgress;
     }
     // Otherwise create new progress entry
     else {
@@ -137,7 +144,7 @@ export function updateFlagProgress(
       const { easeFactor, interval, nextReviewDate } =
         getInitialLearningParameters();
 
-      const newProgress: FlagProgress = {
+      updatedProgress = {
         flagCode,
         easeFactor,
         interval,
@@ -147,13 +154,16 @@ export function updateFlagProgress(
         lastReviewedAt: nowIso,
         createdAt: nowIso,
       };
-
-      // Save to localStorage
-      allProgress[flagCode] = newProgress;
-      localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(allProgress));
-
-      return newProgress;
     }
+
+    // Save to localStorage
+    allProgress[flagCode] = updatedProgress;
+    localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(allProgress));
+
+    // Queue the update for syncing with the server
+    queueProgressUpdate(flagCode, updatedProgress);
+
+    return updatedProgress;
   } catch (error) {
     console.error(`Failed to update progress for flag ${flagCode}:`, error);
     throw new Error(`Failed to update progress for flag ${flagCode}`);

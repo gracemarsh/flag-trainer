@@ -22,6 +22,7 @@ import {
   getSystemStatus,
   SpacedRepetitionStatus,
 } from "./initialize";
+import type { OfflineStatus as OfflineStatusType } from "./offline";
 
 // Types for the hooks
 export interface SpacedLearningSessionConfig {
@@ -409,13 +410,19 @@ export function useProgressStats(): SpacedLearningStats & {
       } catch (statsError) {
         console.error("Error fetching progress stats:", statsError);
         if (isMounted) {
-          setError("Failed to load learning statistics");
+          setError("Failed to load progress statistics");
           setIsLoading(false);
         }
       }
     };
 
-    fetchStats();
+    // Only run in browser environment
+    if (typeof window !== "undefined") {
+      fetchStats();
+    } else {
+      // For SSR, just set loading to false
+      setIsLoading(false);
+    }
 
     return () => {
       isMounted = false;
@@ -471,7 +478,13 @@ export function useNextReviewDate(flagCode: string): {
       }
     };
 
-    fetchNextReviewDate();
+    // Only run in browser environment
+    if (typeof window !== "undefined") {
+      fetchNextReviewDate();
+    } else {
+      // For SSR, just set loading to false
+      setIsLoading(false);
+    }
 
     return () => {
       isMounted = false;
@@ -492,14 +505,50 @@ export function useSyncStatus(autoInitialize = true): {
   forceSynchronization: () => Promise<void>;
   isInitialized: boolean;
 } {
-  const [syncState, setSyncState] = useState<SyncState>(getSyncState());
+  // Default states for SSR
+  const defaultSyncState: SyncState = {
+    isOnline: true,
+    isSyncing: false,
+    lastSyncTime: null,
+    queuedChanges: [],
+    syncError: null,
+  };
+
+  const defaultOfflineStatus: OfflineStatus = {
+    isOnline: true,
+    isInOfflineMode: false,
+    offlineModeExpiry: null,
+    isOfflineModeExpired: false,
+    syncPending: false,
+  };
+
+  const defaultSystemStatus: SpacedRepetitionStatus = {
+    initialized: false,
+    storage: { initialized: false },
+    sync: {
+      initialized: false,
+      isOnline: true,
+      isSyncing: false,
+      pendingChanges: 0,
+    },
+    offline: {
+      initialized: false,
+      isOnline: true,
+      isInOfflineMode: false,
+    },
+  };
+
+  const [syncState, setSyncState] = useState<SyncState>(defaultSyncState);
   const [offlineStatus, setOfflineStatus] =
-    useState<OfflineStatus>(getOfflineStatus());
+    useState<OfflineStatus>(defaultOfflineStatus);
   const [systemStatus, setSystemStatus] =
-    useState<SpacedRepetitionStatus>(getSystemStatus());
+    useState<SpacedRepetitionStatus>(defaultSystemStatus);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === "undefined") return;
+
     if (autoInitialize && !isInitialized) {
       // Initialize the system
       initializeSpacedRepetitionSystem();
@@ -533,4 +582,44 @@ export function useSyncStatus(autoInitialize = true): {
     forceSynchronization,
     isInitialized,
   };
+}
+
+/**
+ * Hook for monitoring offline status
+ * Provides information about the current network state and offline mode
+ */
+export function useOfflineStatus(): OfflineStatusType {
+  const [status, setStatus] = useState<OfflineStatusType>({
+    isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
+    isInOfflineMode: false,
+    offlineModeExpiry: null,
+    isOfflineModeExpired: false,
+    syncPending: false,
+  });
+
+  useEffect(() => {
+    // Import offline utilities dynamically to avoid circular dependencies
+    import("./offline").then(
+      ({ subscribeToOfflineStatus, initializeOfflineSupport }) => {
+        // Initialize
+        initializeOfflineSupport();
+
+        // Subscribe to changes
+        const unsubscribe = subscribeToOfflineStatus(
+          (newStatus: OfflineStatusType) => {
+            setStatus(newStatus);
+          },
+        );
+
+        // Set cleanup function
+        return () => {
+          if (unsubscribe) {
+            unsubscribe();
+          }
+        };
+      },
+    );
+  }, []);
+
+  return status;
 }

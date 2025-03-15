@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { eq } from "drizzle-orm";
 import { FlagImage } from "@/components/ui/flag-image";
+import { PageContainer } from "@/components/ui/page-container";
 
 // Define params type using Promise
 type PageParams = {
@@ -60,7 +61,7 @@ export default async function FlagDetailPage({ params }: PageParams) {
   const funFacts = flag.funFacts ? JSON.parse(flag.funFacts as string) : [];
 
   return (
-    <div className="container py-8">
+    <PageContainer>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col sm:flex-row gap-8">
           <div className="w-full sm:w-1/2 lg:w-1/3">
@@ -127,6 +128,6 @@ export default async function FlagDetailPage({ params }: PageParams) {
           </Card>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

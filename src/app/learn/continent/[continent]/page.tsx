@@ -4,6 +4,7 @@ import { QuickLearningSession } from "@/components/quick-learning-session";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PageContainer } from "@/components/ui/page-container";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -65,7 +66,7 @@ export default async function ContinentLearningPage(props: ContinentPageProps) {
     // If no flags found for this continent
     if (!continentFlags || continentFlags.length === 0) {
       return (
-        <div className="container py-8">
+        <PageContainer>
           <div className="flex flex-col items-center gap-4 mb-8 text-center">
             <h1 className="text-3xl font-bold">No Flags Available</h1>
             <p className="text-muted-foreground">
@@ -81,12 +82,12 @@ export default async function ContinentLearningPage(props: ContinentPageProps) {
               </Button>
             </div>
           </div>
-        </div>
+        </PageContainer>
       );
     }
 
     return (
-      <div className="container py-8">
+      <PageContainer>
         <div className="flex flex-col items-start gap-4 mb-8">
           <h1 className="text-3xl font-bold">{continentName} Flags</h1>
           <p className="text-muted-foreground">
@@ -98,13 +99,13 @@ export default async function ContinentLearningPage(props: ContinentPageProps) {
           flags={continentFlags}
           sessionTitle={`${continentName} Learning Session`}
         />
-      </div>
+      </PageContainer>
     );
   } catch (error) {
     console.error(`Error loading ${continentName} session:`, error);
 
     return (
-      <div className="container py-8">
+      <PageContainer>
         <div className="flex flex-col items-center gap-4 mb-8 text-center">
           <h1 className="text-3xl font-bold">Error Loading Flags</h1>
           <p className="text-muted-foreground">
@@ -120,7 +121,7 @@ export default async function ContinentLearningPage(props: ContinentPageProps) {
             </Button>
           </div>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 }

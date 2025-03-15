@@ -5,6 +5,7 @@
  * during offline/online transitions.
  */
 import { getSyncState, synchronizeChanges } from "./sync";
+import { isLocalStorageAvailable, isNavigatorAvailable } from "@/lib/utils";
 
 // Offline Mode Constants
 const OFFLINE_MODE_KEY = "flag-trainer-offline-mode";
@@ -49,7 +50,7 @@ export function initializeOfflineSupport(
   options = { ...defaultOptions, ...initOptions };
 
   // Only run in browser environment
-  if (typeof window === "undefined") {
+  if (!isNavigatorAvailable()) {
     return getOfflineStatus();
   }
 
@@ -107,35 +108,52 @@ export function subscribeToOfflineStatus(
  * Get the current offline status
  */
 export function getOfflineStatus(): OfflineStatus {
-  const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+  // Default status if not in browser or localStorage is not available
+  if (!isNavigatorAvailable() || !isLocalStorageAvailable()) {
+    return {
+      isOnline: true,
+      isInOfflineMode: false,
+      offlineModeExpiry: null,
+      isOfflineModeExpired: false,
+      syncPending: false,
+    };
+  }
+
+  // Get offline mode status from localStorage
   const isInOfflineMode = localStorage.getItem(OFFLINE_MODE_KEY) === "true";
-  const offlineModeExpiry = localStorage.getItem(OFFLINE_MODE_EXPIRY_KEY)
-    ? parseInt(localStorage.getItem(OFFLINE_MODE_EXPIRY_KEY) || "0", 10)
-    : null;
+  let offlineModeExpiry: number | null = null;
+  const expiryValue = localStorage.getItem(OFFLINE_MODE_EXPIRY_KEY);
 
-  const isOfflineModeExpired = offlineModeExpiry
-    ? Date.now() > offlineModeExpiry
-    : false;
+  if (expiryValue) {
+    offlineModeExpiry = parseInt(expiryValue, 10);
+  }
 
-  const { queuedChanges } = getSyncState();
-  const syncPending = queuedChanges.length > 0;
+  const isOfflineModeExpired =
+    isInOfflineMode &&
+    offlineModeExpiry !== null &&
+    Date.now() > offlineModeExpiry;
+
+  // Get sync state
+  const syncState = getSyncState();
 
   return {
-    isOnline,
+    isOnline: window.navigator.onLine,
     isInOfflineMode,
     offlineModeExpiry,
     isOfflineModeExpired,
-    syncPending,
+    syncPending: syncState.queuedChanges.length > 0,
   };
 }
 
 /**
  * Enable offline mode
- * @param duration Optional duration in milliseconds (defaults to 7 days)
+ * @param duration Duration in milliseconds for offline mode to be active
  */
 export function enableOfflineMode(duration?: number): void {
-  const expiryTime = duration || options.expiryTime || DEFAULT_EXPIRY_TIME;
-  const expiry = Date.now() + expiryTime;
+  if (!isLocalStorageAvailable()) return;
+
+  const actualDuration = duration || options.expiryTime || DEFAULT_EXPIRY_TIME;
+  const expiry = Date.now() + actualDuration;
 
   localStorage.setItem(OFFLINE_MODE_KEY, "true");
   localStorage.setItem(OFFLINE_MODE_EXPIRY_KEY, expiry.toString());
@@ -144,16 +162,13 @@ export function enableOfflineMode(duration?: number): void {
 }
 
 /**
- * Disable offline mode and reconnect if possible
+ * Disable offline mode
  */
 export function disableOfflineMode(): void {
+  if (!isLocalStorageAvailable()) return;
+
   localStorage.removeItem(OFFLINE_MODE_KEY);
   localStorage.removeItem(OFFLINE_MODE_EXPIRY_KEY);
-
-  // If we're actually online, try to sync
-  if (navigator.onLine) {
-    synchronizeChanges();
-  }
 
   notifyListeners();
 }

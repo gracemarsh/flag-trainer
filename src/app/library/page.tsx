@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FlagImage } from "@/components/ui/flag-image";
+import { PageContainer } from "@/components/ui/page-container";
 
 export default async function LibraryPage() {
   const flags = await db.query.flags.findMany({
@@ -16,7 +17,7 @@ export default async function LibraryPage() {
   });
 
   return (
-    <div className="container py-8">
+    <PageContainer>
       <div className="flex flex-col items-start gap-4 mb-8">
         <h1 className="text-3xl font-bold">Flag Library</h1>
         <p className="text-muted-foreground">
@@ -31,12 +32,15 @@ export default async function LibraryPage() {
               <CardTitle className="text-lg">{flag.name}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 pb-2 flex-grow">
-              <div className="aspect-video relative overflow-hidden rounded-md border mb-3 flex items-center justify-center bg-muted/20 p-2">
+              <div
+                className="aspect-video relative overflow-hidden rounded-md border mb-3 flex items-center justify-center bg-muted/20"
+                style={{ transform: "none" }}
+              >
                 <FlagImage
                   countryCode={flag.code}
                   altText={`Flag of ${flag.name}`}
                   size="md"
-                  className="mx-auto"
+                  className="w-full h-full"
                 />
               </div>
               <div className="text-sm text-muted-foreground">
@@ -52,6 +56,6 @@ export default async function LibraryPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

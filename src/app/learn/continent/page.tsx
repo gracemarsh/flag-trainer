@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { FlagImage } from "@/components/ui/flag-image";
+import { PageContainer } from "@/components/ui/page-container";
 
 // Continent information with representative flags and descriptions
 const continents = [
@@ -61,7 +62,7 @@ export default function ContinentSelectionPage() {
   const router = useRouter();
 
   return (
-    <div className="container py-8">
+    <PageContainer>
       <div className="flex flex-col items-start gap-4 mb-8">
         <h1 className="text-3xl font-bold">Learn Flags by Continent</h1>
         <p className="text-muted-foreground">
@@ -107,6 +108,6 @@ export default function ContinentSelectionPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

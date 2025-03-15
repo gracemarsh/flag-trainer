@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { sql } from "drizzle-orm";
+import { PageContainer } from "@/components/ui/page-container";
 
 export default async function LearnPage() {
   // Get total count of flags
@@ -22,7 +23,7 @@ export default async function LearnPage() {
   const totalFlags = flagCount[0].count;
 
   return (
-    <div className="container py-8">
+    <PageContainer>
       <div className="flex flex-col items-start gap-4 mb-8">
         <h1 className="text-3xl font-bold">Learn Flags</h1>
         <p className="text-muted-foreground">
@@ -139,6 +140,6 @@ export default async function LearnPage() {
           </CardFooter>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
 }

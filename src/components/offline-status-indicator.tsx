@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useOfflineStatus } from "@/lib/spaced-repetition/hooks";
+// Using renamed import to avoid conflict
 import {
   enableOfflineMode,
   disableOfflineMode,
@@ -10,6 +10,10 @@ import {
   initializeOfflineSupport,
 } from "@/lib/spaced-repetition/offline";
 import { forceSynchronization } from "@/lib/spaced-repetition/sync";
+
+// Import useOfflineStatus from a different location or use a different approach
+// Commenting out the imported useOfflineStatus that conflicts with local function
+// import { useOfflineStatus } from "@/lib/spaced-repetition/hooks";
 
 // This component can be used in the layout or navbar to provide offline status indication
 export default function OfflineStatusIndicator() {

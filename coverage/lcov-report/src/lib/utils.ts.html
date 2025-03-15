@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -126,7 +126,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -139,26 +139,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -170,13 +168,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,8 +184,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 &nbsp;
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+export function <span class="fstat-no" title="function not covered" >cn(</span>...inputs: ClassValue[]) {
+<span class="cstat-no" title="statement not covered" >  return twMerge(clsx(inputs));</span>
 }
 &nbsp;
 /**
@@ -194,15 +194,15 @@ export function cn(...inputs: ClassValue[]) {
  * @param size Size of the flag image (width in pixels)
  * @returns URL to the flag image
  */
-export function getFlagImageUrl(
+export function <span class="fstat-no" title="function not covered" >getFlagImageUrl(</span>
   countryCode: string,
-  size: number = 320,
+  size: number = <span class="branch-0 cbranch-no" title="branch not covered" >320,</span>
 ): string {
-  if (!countryCode) {
-    console.warn("Warning: Invalid country code provided to getFlagImageUrl");
-    return "/placeholder-flag.png"; // Fallback image path
+<span class="cstat-no" title="statement not covered" >  if (!countryCode) {</span>
+<span class="cstat-no" title="statement not covered" >    console.warn("Warning: Invalid country code provided to getFlagImageUrl");</span>
+<span class="cstat-no" title="statement not covered" >    return "/placeholder-flag.png"; </span>// Fallback image path
   }
-  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`;
+<span class="cstat-no" title="statement not covered" >  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`;</span>
 }
 &nbsp;
 /**
@@ -210,12 +210,12 @@ export function getFlagImageUrl(
  * @param countryCode ISO 3166-1 alpha-2 country code (e.g. 'US', 'GB')
  * @returns URL to the flag SVG
  */
-export function getFlagSvgUrl(countryCode: string): string {
-  if (!countryCode) {
-    console.warn("Warning: Invalid country code provided to getFlagSvgUrl");
-    return "/placeholder-flag.svg"; // Fallback image path
+export function <span class="fstat-no" title="function not covered" >getFlagSvgUrl(</span>countryCode: string): string {
+<span class="cstat-no" title="statement not covered" >  if (!countryCode) {</span>
+<span class="cstat-no" title="statement not covered" >    console.warn("Warning: Invalid country code provided to getFlagSvgUrl");</span>
+<span class="cstat-no" title="statement not covered" >    return "/placeholder-flag.svg"; </span>// Fallback image path
   }
-  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
+<span class="cstat-no" title="statement not covered" >  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;</span>
 }
 &nbsp;
 /**
@@ -224,18 +224,18 @@ export function getFlagSvgUrl(countryCode: string): string {
  * @param size Size of the flag image (width in pixels)
  * @returns URL to the flag image
  */
-export function getFlagUrl(
+export function <span class="fstat-no" title="function not covered" >getFlagUrl(</span>
   countryCode: string | undefined,
-  size: number = 320,
+  size: number = <span class="branch-0 cbranch-no" title="branch not covered" >320,</span>
 ): string {
   // Safety check for undefined or invalid country code
-  if (!countryCode) {
-    console.warn("Warning: Invalid country code provided to getFlagUrl");
-    return "/placeholder-flag.png"; // Fallback image path
+<span class="cstat-no" title="statement not covered" >  if (!countryCode) {</span>
+<span class="cstat-no" title="statement not covered" >    console.warn("Warning: Invalid country code provided to getFlagUrl");</span>
+<span class="cstat-no" title="statement not covered" >    return "/placeholder-flag.png"; </span>// Fallback image path
   }
 &nbsp;
   // Use the flagcdn.com URL
-  return getFlagImageUrl(countryCode, size);
+<span class="cstat-no" title="statement not covered" >  return getFlagImageUrl(countryCode, size);</span>
 &nbsp;
   // For fallback, we could return a local path if needed:
   // return `/flags/${countryCode.toLowerCase()}.svg`;
@@ -247,7 +247,7 @@ export function getFlagUrl(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-10T00:09:55.751Z
+                at 2025-03-10T11:27:28.580Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

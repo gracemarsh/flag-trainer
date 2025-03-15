@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSpacedLearningSession } from "@/lib/spaced-repetition/hooks";
 import {
   Card,
@@ -11,76 +11,91 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { FlagQuizSession } from "@/components/flag-quiz-session";
+import { PageContainer } from "@/components/ui/page-container";
 
 export default function SpacedLearningSessionPage() {
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [showHint, setShowHint] = useState(false);
-
   // Use the spaced learning hook with default parameters
   const {
-    currentFlag,
-    sessionProgress,
     answerFlag,
     sessionCompleted,
     results,
     isLoading,
     error,
     restartSession,
+    sessionFlags,
   } = useSpacedLearningSession({
     flagCount: 10,
     includeNewFlags: true,
     newFlagRatio: 0.3,
   });
 
-  // Function to handle answer selection
-  const handleAnswerSelect = (code: string) => {
-    if (selectedAnswer) return; // Prevent multiple selections
+  // Format flags for the FlagQuizSession component
+  const [formattedFlags, setFormattedFlags] = useState<
+    Array<{
+      id: string;
+      code: string;
+      name: string;
+      isNew?: boolean;
+      progress?: unknown;
+    }>
+  >([]);
+  const [debugMessage, setDebugMessage] = useState<string>("");
 
-    setSelectedAnswer(code);
-    const isCorrect = code === currentFlag?.flagCode;
-
-    // After a delay, record the answer and move to the next flag
-    setTimeout(() => {
-      answerFlag(isCorrect);
-      setSelectedAnswer(null);
-      setShowHint(false);
-    }, 1500);
-  };
-
-  // Generate options (one correct, three random)
-  const [options, setOptions] = useState<Array<{ code: string; name: string }>>(
-    [],
-  );
-
+  // Debug function to help identify issues
   useEffect(() => {
-    if (!currentFlag) return;
+    if (sessionFlags) {
+      console.log("Session flags available:", sessionFlags.length);
+      console.log(
+        "Sample flag data:",
+        sessionFlags.length > 0 ? sessionFlags[0] : "No flags",
+      );
+      setDebugMessage(`Session flags: ${sessionFlags.length}`);
+    } else {
+      console.log("No session flags available");
+      setDebugMessage("No session flags available");
+    }
+  }, [sessionFlags]);
 
-    // This is a simplified approach. In a real application, you would:
-    // 1. Get the correct flag details
-    // 2. Get three random flags from your dataset
-    // 3. Combine and shuffle them
+  // Prepare the flags for the session
+  useEffect(() => {
+    if (sessionFlags && sessionFlags.length > 0) {
+      // Map session flags to our internal format with proper country names
+      const formatted = sessionFlags.map((flag) => ({
+        id: flag.flagCode, // Use flagCode as the ID since it's unique
+        code: flag.flagCode,
+        name: flag.flagCode, // Just use the code here, adaptFlag will look up the proper name
+        isNew: flag.isNew,
+        progress: flag.progress,
+      }));
 
-    // For now, we'll simulate this with some hardcoded options
-    const dummyOptions = [
-      { code: currentFlag.flagCode, name: currentFlag.flagCode.toUpperCase() },
-      { code: "dummy1", name: "Option 1" },
-      { code: "dummy2", name: "Option 2" },
-      { code: "dummy3", name: "Option 3" },
-    ];
+      console.log("Formatted flags:", formatted);
+      setFormattedFlags(formatted);
+    }
+  }, [sessionFlags]);
 
-    // Shuffle the options
-    setOptions([...dummyOptions].sort(() => Math.random() - 0.5));
-  }, [currentFlag]);
+  // Custom answer handler that will be passed to FlagQuizSession
+  const handleSpacedAnswer = useCallback(
+    (code: string, isCorrect: boolean) => {
+      console.log(`Answer received: ${code}, correct: ${isCorrect}`);
+      answerFlag(isCorrect);
+    },
+    [answerFlag],
+  );
 
   // Display loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
-        <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
+      <PageContainer>
+        <div className="flex flex-col items-start gap-4 mb-8">
+          <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
+          <p className="text-muted-foreground">
+            Preparing your personalized learning experience...
+          </p>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle>Loading your session...</CardTitle>
@@ -88,19 +103,25 @@ export default function SpacedLearningSessionPage() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="mt-4 text-muted-foreground">
-              Preparing your personalized learning session
+              Analyzing your previous learning data
             </p>
           </CardContent>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
   // Display error state
   if (error) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
-        <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
+      <PageContainer>
+        <div className="flex flex-col items-start gap-4 mb-8">
+          <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
+          <p className="text-muted-foreground">
+            There was an error loading your personalized session.
+          </p>
+        </div>
+
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600">
@@ -117,15 +138,22 @@ export default function SpacedLearningSessionPage() {
             </Button>
           </CardFooter>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
   // Display session completed state
   if (sessionCompleted) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
-        <h1 className="text-3xl font-bold">Session Completed!</h1>
+      <PageContainer>
+        <div className="flex flex-col items-start gap-4 mb-8">
+          <h1 className="text-3xl font-bold">Session Completed!</h1>
+          <p className="text-muted-foreground">
+            Great job! Your progress has been saved for optimal spaced
+            repetition.
+          </p>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle>Your Results</CardTitle>
@@ -169,121 +197,62 @@ export default function SpacedLearningSessionPage() {
             </Button>
           </CardFooter>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
-  // Regular session display
-  return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-muted-foreground">
-            Flag {sessionProgress.completed + 1} of {sessionProgress.total}
-          </span>
-          <Progress value={sessionProgress.percentage} className="w-32 h-2" />
+  // Show debug information if no flags are available
+  if (!formattedFlags || formattedFlags.length === 0) {
+    return (
+      <PageContainer>
+        <div className="flex flex-col items-start gap-4 mb-8">
+          <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
+          <p className="text-muted-foreground">
+            Waiting for your personalized flag data to become available.
+          </p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading Session Data</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Your personalized spaced repetition session is being prepared...
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">{debugMessage}</p>
+            {sessionFlags && (
+              <div className="mt-4">
+                <p>Session flags count: {sessionFlags.length}</p>
+                <pre className="text-xs mt-2 p-2 bg-slate-100 rounded overflow-auto max-h-40">
+                  {JSON.stringify(sessionFlags.slice(0, 2), null, 2)}
+                </pre>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </PageContainer>
+    );
+  }
+
+  // Regular session display with FlagQuizSession
+  return (
+    <PageContainer>
+      <div className="flex flex-col items-start gap-4 mb-8">
+        <h1 className="text-3xl font-bold">Spaced Learning Session</h1>
+        <p className="text-muted-foreground">
+          Review flags based on your learning history using spaced repetition
+          for optimal retention.
+        </p>
       </div>
 
-      {currentFlag && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center">
-              {/* Flag Display */}
-              <div className="relative w-72 h-48 mb-6 overflow-hidden rounded-lg border shadow-sm">
-                {currentFlag.flagCode ? (
-                  <Image
-                    src={`/flags/${currentFlag.flagCode}.svg`}
-                    alt="Flag to identify"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <Skeleton className="w-full h-full" />
-                )}
-              </div>
-
-              {/* Question */}
-              <h2 className="text-xl font-semibold mb-6">
-                Which country does this flag belong to?
-              </h2>
-
-              {/* Answer Options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mb-6">
-                {options.map((option) => (
-                  <Button
-                    key={option.code}
-                    onClick={() => handleAnswerSelect(option.code)}
-                    disabled={!!selectedAnswer}
-                    variant={
-                      selectedAnswer === null
-                        ? "outline"
-                        : option.code === currentFlag.flagCode
-                          ? "success"
-                          : selectedAnswer === option.code
-                            ? "destructive"
-                            : "outline"
-                    }
-                    className={`h-16 text-lg justify-start px-4 ${
-                      selectedAnswer !== null &&
-                      option.code === currentFlag.flagCode
-                        ? "ring-2 ring-green-500 ring-offset-2"
-                        : ""
-                    }`}
-                  >
-                    {option.name}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Hint Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowHint(!showHint)}
-                disabled={!!selectedAnswer}
-              >
-                {showHint ? "Hide Hint" : "Show Hint"}
-              </Button>
-
-              {/* Hint Content */}
-              {showHint && (
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg text-sm">
-                  <p>
-                    This flag belongs to a country in{" "}
-                    {currentFlag.isNew ? "Unknown Region" : "Region Name"}.
-                  </p>
-                  <p className="mt-1">
-                    It was first introduced in{" "}
-                    {currentFlag.isNew ? "Unknown Year" : "Year"}.
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between border-t pt-4">
-            <Button variant="ghost" asChild>
-              <Link href="/learn/spaced">Exit Session</Link>
-            </Button>
-            <div className="flex items-center text-sm space-x-1">
-              <span className="font-medium">
-                {currentFlag.isNew ? "New Flag" : "Review Flag"}
-              </span>
-              {!currentFlag.isNew && currentFlag.progress && (
-                <span className="text-muted-foreground">
-                  (Last seen:{" "}
-                  {new Date(
-                    currentFlag.progress.lastReviewedAt || "",
-                  ).toLocaleDateString()}
-                  )
-                </span>
-              )}
-            </div>
-          </CardFooter>
-        </Card>
-      )}
-    </div>
+      <FlagQuizSession
+        flags={formattedFlags}
+        sessionTitle="Spaced Learning Session"
+        exitPath="/learn/spaced"
+        showHints={true}
+        onAnswer={handleSpacedAnswer}
+      />
+    </PageContainer>
   );
 }

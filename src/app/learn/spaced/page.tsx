@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useProgressStats, useSyncStatus } from "@/lib/spaced-repetition/hooks";
 import {
   Card,
@@ -15,8 +15,13 @@ import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { initializeSpacedRepetitionSystem } from "@/lib/spaced-repetition/initialize";
 import OfflineStatusIndicator from "@/components/offline-status-indicator";
+import { PageContainer } from "@/components/ui/page-container";
 
-export default function SpacedLearningDashboard() {
+// Force dynamic rendering
+export const dynamic = "force-dynamic";
+
+// Create a client-only wrapper component
+function ClientOnlySpacedLearningDashboard() {
   // Initialize the system when the component mounts
   useEffect(() => {
     initializeSpacedRepetitionSystem();
@@ -45,7 +50,7 @@ export default function SpacedLearningDashboard() {
     : 0;
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <PageContainer className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Your Flag Learning Progress</h1>
         <div className="w-64">
@@ -107,7 +112,7 @@ export default function SpacedLearningDashboard() {
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/learn/library">Browse Flag Library</Link>
+              <Link href="/library">Browse Flag Library</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -159,7 +164,7 @@ export default function SpacedLearningDashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20 flex flex-col">
-                <Link href="/learn/search">
+                <Link href="/library">
                   <span className="text-xs uppercase">Find</span>
                   <span className="text-lg font-bold">Specific Flag</span>
                 </Link>
@@ -174,6 +179,43 @@ export default function SpacedLearningDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
+}
+
+// Main component with client-side rendering
+export default function SpacedLearningDashboard() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Show a loading state during SSR
+  if (!isMounted) {
+    return (
+      <PageContainer className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Your Flag Learning Progress</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Loading...</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  // Render the client-only component once mounted
+  return <ClientOnlySpacedLearningDashboard />;
 }
