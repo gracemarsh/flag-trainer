@@ -6,38 +6,38 @@
  * 2. Queueing operations when offline
  * 3. Syncing data when the connection is restored
  */
-import { FlagProgress } from "./storage";
-import { isLocalStorageAvailable, isNavigatorAvailable } from "@/lib/utils";
+import { FlagProgress } from './storage'
+import { isLocalStorageAvailable, isNavigatorAvailable } from '@/lib/utils'
 // import { getAllProgressData, FlagProgress } from './storage'
 
 // Define the last stored sync time key (used within syncProgressWithServer)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const LAST_SYNC_KEY = "last_sync_timestamp";
+const LAST_SYNC_KEY = 'last_sync_timestamp'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type ProgressData = Record<string, unknown>;
+type ProgressData = Record<string, unknown>
 
 // Queue item for sync operations
 type SyncQueueItem = {
-  id: string;
-  timestamp: number;
-  action: "update" | "delete";
-  data: Record<string, unknown>;
-  retryCount: number;
-};
+  id: string
+  timestamp: number
+  action: 'update' | 'delete'
+  data: Record<string, unknown>
+  retryCount: number
+}
 
 // Types for the sync module
 export interface SyncState {
-  isOnline: boolean;
-  isSyncing: boolean;
-  lastSyncTime: number | null;
-  queuedChanges: SyncQueueItem[];
-  syncError: string | null;
+  isOnline: boolean
+  isSyncing: boolean
+  lastSyncTime: number | null
+  queuedChanges: SyncQueueItem[]
+  syncError: string | null
 }
 
 // Storage keys
-const STORAGE_KEY_SYNC_QUEUE = "flag-trainer-sync-queue";
-const STORAGE_KEY_LAST_SYNC = "flag-trainer-last-sync";
+const STORAGE_KEY_SYNC_QUEUE = 'flag-trainer-sync-queue'
+const STORAGE_KEY_LAST_SYNC = 'flag-trainer-last-sync'
 
 // Default state
 const defaultSyncState: SyncState = {
@@ -46,10 +46,10 @@ const defaultSyncState: SyncState = {
   lastSyncTime: null,
   queuedChanges: [],
   syncError: null,
-};
+}
 
 // In-memory state (will be initialized from localStorage)
-const syncState: SyncState = { ...defaultSyncState };
+const syncState: SyncState = { ...defaultSyncState }
 
 /**
  * Initialize the sync module
@@ -58,37 +58,37 @@ const syncState: SyncState = { ...defaultSyncState };
 export function initializeSync(): SyncState {
   // Only run in browser environment
   if (!isNavigatorAvailable() || !isLocalStorageAvailable()) {
-    return syncState;
+    return syncState
   }
 
   // Load queue from localStorage
   try {
-    const storedQueue = localStorage.getItem(STORAGE_KEY_SYNC_QUEUE);
+    const storedQueue = localStorage.getItem(STORAGE_KEY_SYNC_QUEUE)
     if (storedQueue) {
-      syncState.queuedChanges = JSON.parse(storedQueue);
+      syncState.queuedChanges = JSON.parse(storedQueue)
     }
 
-    const lastSync = localStorage.getItem(STORAGE_KEY_LAST_SYNC);
+    const lastSync = localStorage.getItem(STORAGE_KEY_LAST_SYNC)
     if (lastSync) {
-      syncState.lastSyncTime = parseInt(lastSync, 10);
+      syncState.lastSyncTime = parseInt(lastSync, 10)
     }
   } catch (error) {
-    console.error("Failed to load sync queue from localStorage:", error);
+    console.error('Failed to load sync queue from localStorage:', error)
   }
 
   // Set up event listeners for online/offline events
-  window.addEventListener("online", handleOnline);
-  window.addEventListener("offline", handleOffline);
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
 
   // Initialize online status
-  syncState.isOnline = navigator.onLine;
+  syncState.isOnline = navigator.onLine
 
   // If we're online and have queued changes, try to sync
   if (syncState.isOnline && syncState.queuedChanges.length > 0) {
-    synchronizeChanges();
+    synchronizeChanges()
   }
 
-  return syncState;
+  return syncState
 }
 
 /**
@@ -96,12 +96,12 @@ export function initializeSync(): SyncState {
  * Removes event listeners
  */
 export function cleanupSync(): void {
-  if (typeof window === "undefined") {
-    return;
+  if (typeof window === 'undefined') {
+    return
   }
 
-  window.removeEventListener("online", handleOnline);
-  window.removeEventListener("offline", handleOffline);
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
 }
 
 /**
@@ -109,15 +109,15 @@ export function cleanupSync(): void {
  * Attempt to sync queued changes
  */
 function handleOnline(): void {
-  syncState.isOnline = true;
-  synchronizeChanges();
+  syncState.isOnline = true
+  synchronizeChanges()
 }
 
 /**
  * Handle offline event
  */
 function handleOffline(): void {
-  syncState.isOnline = false;
+  syncState.isOnline = false
 }
 
 /**
@@ -125,24 +125,21 @@ function handleOffline(): void {
  * @param action The action type ('update' or 'delete')
  * @param data The data to sync
  */
-export function queueChange(
-  action: "update" | "delete",
-  data: Record<string, unknown>,
-): void {
+export function queueChange(action: 'update' | 'delete', data: Record<string, unknown>): void {
   const item: SyncQueueItem = {
     id: `${action}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     timestamp: Date.now(),
     action,
     data,
     retryCount: 0,
-  };
+  }
 
-  syncState.queuedChanges.push(item);
-  saveQueueToStorage();
+  syncState.queuedChanges.push(item)
+  saveQueueToStorage()
 
   // If we're online, try to sync immediately
   if (syncState.isOnline && !syncState.isSyncing) {
-    synchronizeChanges();
+    synchronizeChanges()
   }
 }
 
@@ -151,11 +148,8 @@ export function queueChange(
  * @param flagCode The country code
  * @param progress The progress data
  */
-export function queueProgressUpdate(
-  flagCode: string,
-  progress: FlagProgress,
-): void {
-  queueChange("update", { flagCode, progress });
+export function queueProgressUpdate(flagCode: string, progress: FlagProgress): void {
+  queueChange('update', { flagCode, progress })
 }
 
 /**
@@ -170,60 +164,56 @@ export async function synchronizeChanges(): Promise<void> {
     syncState.queuedChanges.length === 0 ||
     !isLocalStorageAvailable()
   ) {
-    return;
+    return
   }
 
-  syncState.isSyncing = true;
-  syncState.syncError = null;
+  syncState.isSyncing = true
+  syncState.syncError = null
 
   try {
     // Process each queued item
-    const successfulItems: string[] = [];
-    const failedItems: SyncQueueItem[] = [];
+    const successfulItems: string[] = []
+    const failedItems: SyncQueueItem[] = []
 
     // Process in batches for efficiency
-    const items = [...syncState.queuedChanges];
+    const items = [...syncState.queuedChanges]
 
     for (const item of items) {
       try {
-        await syncItem(item);
-        successfulItems.push(item.id);
+        await syncItem(item)
+        successfulItems.push(item.id)
       } catch {
         // Increment retry count for failed items
-        item.retryCount += 1;
+        item.retryCount += 1
 
         // After 3 retries, drop the item to prevent endless retries
         if (item.retryCount < 3) {
-          failedItems.push(item);
+          failedItems.push(item)
         } else {
-          console.warn(`Dropping sync item after 3 failed attempts:`, item);
+          console.warn(`Dropping sync item after 3 failed attempts:`, item)
         }
       }
     }
 
     // Remove successful items from queue
     syncState.queuedChanges = syncState.queuedChanges.filter(
-      (item) => !successfulItems.includes(item.id),
-    );
+      (item) => !successfulItems.includes(item.id)
+    )
 
     // Update last sync time
-    syncState.lastSyncTime = Date.now();
+    syncState.lastSyncTime = Date.now()
     if (isLocalStorageAvailable()) {
-      localStorage.setItem(
-        STORAGE_KEY_LAST_SYNC,
-        syncState.lastSyncTime.toString(),
-      );
+      localStorage.setItem(STORAGE_KEY_LAST_SYNC, syncState.lastSyncTime.toString())
     }
 
     // Save updated queue
-    saveQueueToStorage();
+    saveQueueToStorage()
   } catch (err) {
-    const error = err as Error;
-    console.error("Synchronization error:", error);
-    syncState.syncError =
-      error instanceof Error ? error.message : "Unknown sync error";
+    const error = err as Error
+    console.error('Synchronization error:', error)
+    syncState.syncError = error instanceof Error ? error.message : 'Unknown sync error'
   } finally {
-    syncState.isSyncing = false;
+    syncState.isSyncing = false
   }
 }
 
@@ -240,15 +230,15 @@ async function syncItem(item: SyncQueueItem): Promise<void> {
     setTimeout(() => {
       // Simulate occasional failure for testing
       if (Math.random() < 0.1) {
-        reject(new Error("Simulated sync failure"));
-        return;
+        reject(new Error('Simulated sync failure'))
+        return
       }
 
       // For demonstration, log the item
-      console.log(`Synced item ${item.id} successfully:`, item);
-      resolve();
-    }, 500);
-  });
+      console.log(`Synced item ${item.id} successfully:`, item)
+      resolve()
+    }, 500)
+  })
 }
 
 /**
@@ -256,16 +246,13 @@ async function syncItem(item: SyncQueueItem): Promise<void> {
  */
 function saveQueueToStorage(): void {
   if (!isLocalStorageAvailable()) {
-    return;
+    return
   }
 
   try {
-    localStorage.setItem(
-      STORAGE_KEY_SYNC_QUEUE,
-      JSON.stringify(syncState.queuedChanges),
-    );
+    localStorage.setItem(STORAGE_KEY_SYNC_QUEUE, JSON.stringify(syncState.queuedChanges))
   } catch (error) {
-    console.error("Failed to save sync queue to localStorage:", error);
+    console.error('Failed to save sync queue to localStorage:', error)
   }
 }
 
@@ -274,7 +261,7 @@ function saveQueueToStorage(): void {
  * @returns The current sync state
  */
 export function getSyncState(): SyncState {
-  return { ...syncState };
+  return { ...syncState }
 }
 
 /**
@@ -282,7 +269,7 @@ export function getSyncState(): SyncState {
  * Useful for manual sync buttons
  */
 export function forceSynchronization(): Promise<void> {
-  return synchronizeChanges();
+  return synchronizeChanges()
 }
 
 /**
@@ -290,8 +277,8 @@ export function forceSynchronization(): Promise<void> {
  * Useful for testing or resetting
  */
 export function clearSyncQueue(): void {
-  syncState.queuedChanges = [];
-  saveQueueToStorage();
+  syncState.queuedChanges = []
+  saveQueueToStorage()
 }
 
 // Comment out unused export if it's needed in the future

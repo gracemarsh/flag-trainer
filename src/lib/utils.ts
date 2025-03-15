@@ -1,8 +1,8 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 /**
@@ -10,16 +10,16 @@ export function cn(...inputs: ClassValue[]) {
  * @returns boolean indicating if localStorage is available
  */
 export function isLocalStorageAvailable(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === 'undefined') return false
 
   try {
     // Test if localStorage is available and functioning
-    const testKey = "__storage_test__";
-    window.localStorage.setItem(testKey, testKey);
-    window.localStorage.removeItem(testKey);
-    return true;
+    const testKey = '__storage_test__'
+    window.localStorage.setItem(testKey, testKey)
+    window.localStorage.removeItem(testKey)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -28,7 +28,7 @@ export function isLocalStorageAvailable(): boolean {
  * @returns boolean indicating if navigator is available
  */
 export function isNavigatorAvailable(): boolean {
-  return typeof window !== "undefined" && typeof navigator !== "undefined";
+  return typeof window !== 'undefined' && typeof navigator !== 'undefined'
 }
 
 /**
@@ -37,15 +37,12 @@ export function isNavigatorAvailable(): boolean {
  * @param size Size of the flag image (width in pixels)
  * @returns URL to the flag image
  */
-export function getFlagImageUrl(
-  countryCode: string,
-  size: number = 320,
-): string {
+export function getFlagImageUrl(countryCode: string, size: number = 320): string {
   if (!countryCode) {
-    console.warn("Warning: Invalid country code provided to getFlagImageUrl");
-    return "/placeholder-flag.png"; // Fallback image path
+    console.warn('Warning: Invalid country code provided to getFlagImageUrl')
+    return '/placeholder-flag.png' // Fallback image path
   }
-  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`;
+  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`
 }
 
 /**
@@ -55,10 +52,10 @@ export function getFlagImageUrl(
  */
 export function getFlagSvgUrl(countryCode: string): string {
   if (!countryCode) {
-    console.warn("Warning: Invalid country code provided to getFlagSvgUrl");
-    return "/placeholder-flag.svg"; // Fallback image path
+    console.warn('Warning: Invalid country code provided to getFlagSvgUrl')
+    return '/placeholder-flag.svg' // Fallback image path
   }
-  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
+  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`
 }
 
 /**
@@ -67,24 +64,21 @@ export function getFlagSvgUrl(countryCode: string): string {
  * @param size Size of the flag image (width in pixels) - only used for PNG fallback
  * @returns URL to the flag image
  */
-export function getFlagUrl(
-  countryCode: string | undefined,
-  size: number = 320,
-): string {
+export function getFlagUrl(countryCode: string | undefined, size: number = 320): string {
   // Safety check for undefined or invalid country code
   if (!countryCode) {
-    console.warn("Warning: Invalid country code provided to getFlagUrl");
-    return "/placeholder-flag.svg"; // Fallback image path
+    console.warn('Warning: Invalid country code provided to getFlagUrl')
+    return '/placeholder-flag.svg' // Fallback image path
   }
 
   // For high-resolution displays, we might want to use PNG instead of SVG
   // This is just a placeholder for future implementation
-  const useHighResPng = false;
+  const useHighResPng = false
 
   if (useHighResPng && size > 320) {
-    return getFlagImageUrl(countryCode, size);
+    return getFlagImageUrl(countryCode, size)
   }
 
   // Use SVG from flagcdn.com for better quality and scalability
-  return getFlagSvgUrl(countryCode);
+  return getFlagSvgUrl(countryCode)
 }
